@@ -165,9 +165,14 @@ If you did the inventory preparations described in [In-Game preparations](#-in-g
 
 ❕ As soon as the macro has been started, there must be no strong mouse movement during the process, otherwise the macro cannot be executed correctly.
 
+
 ## 🔰 Version
 
-> This README file is associated with QuickArmorSwap `v0.2-beta`
+> This README file is associated with QuickArmorSwap `v0.2.1-beta`
+
+### ⏫ Upgrading the Version
+
+
 
 
 ## 📖 Imprint
