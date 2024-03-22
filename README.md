@@ -67,7 +67,7 @@ To start QuickArmorChange, open the terminal in the QuickArmorChange folder like
 
 **Development, Conception & Support**
 - [AEYCEN](https://github.com/AEYCEN) (Discord: aeycen)
-- [2_L_8](https://github.com/) (Discord: 2_l_8)
+- [2_L_8](https://github.com/2-L-8) (Discord: 2_l_8)
 
 Create an issue ticket on GitHub for bug reports and feature requests or join our [Discord server](https://discord.gg/N55gSQcVEC) for individual support.
 
