@@ -1,0 +1,47 @@
+name: 🐞 Bug report
+description: Report a bug or problem.
+title: 'bug: '
+labels: [ 'bug' ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # QuickArmorChange Bug Report
+        
+        Please check [here](https://github.com/AEYCEN/QuickArmorSwap/labels/bug) whether there are already tickets for this bug before creating a new one
+        All points without the `(optional)` note are mandatory fields
+  - type: dropdown
+    id: resolution
+    attributes:
+      label: Monitor resolution
+      description: What resolution does your main monitor have?
+      multiple: false
+      options:
+        - HD (720p)
+        - FHD (1080p)
+        - WQHD (1440p)
+        - 4K UHD (2160p)
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Error Description
+      description: |
+        - Describe the error in detail
+        - If possible, add steps to reproduce the error (Step 1... Step 2...)
+        - Add images and videos where possible
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Error logs (optional)
+      description: Add error messages from the shell
+      render: shell
+  - type: textarea
+    attributes:
+      label: Suggested solution (optional)
+      description: If possible, add a possible solution to the error
+  - type: textarea
+    attributes:
+      label: Additional context (optional)
+      description: Add additional context here

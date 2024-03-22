@@ -1,0 +1,31 @@
+name: ⭐ Feature
+description: Create a detailed ticket for a new feature
+title: 'feat: '
+labels: [ 'feature' ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # QuickArmorSwap Feature Request
+        
+        Please check [here](https://github.com/AEYCEN/QuickArmorSwap/labels/bug) whether there are already tickets for this feature request before creating a new one
+        All points without the `(optional)` note are mandatory fields
+  - type: textarea
+    attributes:
+      label: Feature description
+      description: |
+        What exactly should be implemented
+        
+        - Describe the functionality in detail
+        - Add images, videos, links, examples, references, etc. where possible
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Solution approach (optional)
+      description: |
+        Suggestion on how the ticket could be implemented
+        
+        - Which functions would need to be adjusted?
+        - What techniques can be used?
+        - Are there perhaps several approaches?
