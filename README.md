@@ -204,7 +204,7 @@ If you did the inventory preparations described in [In-Game preparations](#-in-g
 
 ## 🔰 Version
 
-This README file is associated with QuickArmorSwap `v0.3-beta (25.03.24`
+This README file is associated with QuickArmorSwap `v0.3-beta (25.03.24)`
 
 ### ⏫ Upgrading the Version
 
@@ -219,8 +219,8 @@ To upgrade QuickArmorSwap to a newer version, simply delete the folder of the ol
 Create an issue ticket on GitHub for bug reports and feature requests or join our [Discord server](https://discord.gg/N55gSQcVEC) for individual support.
 
 
-## 📜 Licence
+## 📜 License
 
-QuickArmorSwap is licensed under the GPLv3 licence. Please see the [licence file](LICENSE) for more information.
+QuickArmorSwap is licensed under the GPLv3 licence. Please see the [license file](LICENSE) for more information.
 [tl;dr](https://www.tldrlegal.com/license/gnu-general-public-license-v3-gpl-3) you may copy, distribute and modify QuickArmorSwap as long as you track changes/dates in source files.
 Any modifications to QuickArmorSwap must also be made available under the GPL along with build & install instructions.

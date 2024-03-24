@@ -61,23 +61,40 @@ def get_operating_system():
 
 
 def read_game_ui_scaling(i_game_path, i_game_version):
-    # try:
-    #     config = configparser.ConfigParser(strict=False, allow_no_value=True)
-    #     if i_game_version == 'ase':
-    #         file_path = i_game_path + '/ShooterGame/Saved/Config/WindowsNoEditor/GameUserSettings.ini'
-    #     else:
-    #         file_path = i_game_path + '/ShooterGame/Saved/Config/Windows/GameUserSettings.ini'
-    #
-    #     config.read(file_path)
-    #
-    #     if 'UIScaling' in config['/Script/ShooterGame.ShooterGameUserSettings']:
-    #         return config['/Script/ShooterGame.ShooterGameUserSettings']['UIScaling']
-    #     else:
-    #         raise Error('ARK is not Installed')
-    # except FileNotFoundError:
-    #     raise Error('ARK is not Installed')
+    try:
+        config = configparser.ConfigParser(strict=False)
+        if i_game_version == 'ase':
+            file_path = i_game_path + '/ShooterGame/Saved/Config/WindowsNoEditor/GameUserSettings.ini'
+        else:
+            file_path = i_game_path + '/ShooterGame/Saved/Config/Windows/GameUserSettings.ini'
 
-    return 1.0000
+        config.read(file_path, encoding='utf-16')
+
+        section_name = '/Script/ShooterGame.ShooterGameUserSettings'
+
+        if 'UIScaling' in config[section_name]:
+            return config[section_name]['UIScaling']
+        else:
+            raise Error('ARK is not Installed')
+    except FileNotFoundError:
+        raise Error('ARK is not Installed')
+
+
+def read_game_resolution(i_game_path, i_game_version):
+    try:
+        config = configparser.ConfigParser(strict=False)
+        if i_game_version == 'ase':
+            file_path = i_game_path + '/ShooterGame/Saved/Config/WindowsNoEditor/GameUserSettings.ini'
+        else:
+            file_path = i_game_path + '/ShooterGame/Saved/Config/Windows/GameUserSettings.ini'
+
+        config.read(file_path, encoding='utf-16')
+
+        section_name = '/Script/ShooterGame.ShooterGameUserSettings'
+
+        return [int(config[section_name]['ResolutionSizeX']), int(config[section_name]['ResolutionSizeY'])]
+    except FileNotFoundError:
+        raise Error('ARK is not Installed')
 
 
 def read_game_inventory_keybind(i_game_path, i_game_version):
@@ -96,17 +113,17 @@ def read_game_inventory_keybind(i_game_path, i_game_version):
 
 def get_mouse_coordinates(i_game_path, i_game_version):
     ui_scaling = read_game_ui_scaling(i_game_path, i_game_version)
-    screen_width = pyautogui.size().width
-    screen_height = pyautogui.size().height
 
-    print(ui_scaling)
+    resolution = read_game_resolution(i_game_path, i_game_version)
+    screen_width = resolution[0]
+    screen_height = resolution[1]
 
     coordinates = []
 
     if i_game_version == 'ase':
         # Diese ermittlung der Koordinaten erstellen bitte :)
-        coordinates.append([420, 360])  # Koordinaten für den ersten Klick
-        coordinates.append([420, 410])  # Koordinaten für den zweiten Klick
+        coordinates.append([400, 660])  # Koordinaten für den ersten Klick
+        coordinates.append([400, 710])  # Koordinaten für den zweiten Klick
 
     else:
         coordinates.append([420, 360])
@@ -141,8 +158,6 @@ def create_intro_output():
     print("")
     print(app_name)
     print(created_by)
-    print("")
-    print(f'     [OS: {get_operating_system()} / Resolution: {pyautogui.size().width}x{pyautogui.size().height}px]')
 
 
 def create_response_output(i_hotkey_string):
@@ -212,13 +227,16 @@ if 'game_path' not in saved_parameters:
             game_path = input('     Enter your path to the "ASKSurvivalEvolved" game folder: ')
         else:
             game_path = input('     Enter your path to the "Ark Survival Ascended" game folder: ')
-        if os.path.isdir(game_path) and ((game_version == 'ase' and game_path.endswith('ARKSurvivalEvolved')) or (game_version == 'asa' and game_path.endswith('Ark Survival Ascended'))):
+        if os.path.isdir(game_path) and ((game_version == 'ase' and game_path.endswith('ARKSurvivalEvolved')) or (
+                game_version == 'asa' and game_path.endswith('Ark Survival Ascended'))):
             break
         else:
             if game_version == 'ase':
-                game_path = input('     Invalid input. Please enter the whole folder path to the "ASKSurvivalEvolved" game folder: ')
+                game_path = input(
+                    '     Invalid input. Please enter the whole folder path to the "ASKSurvivalEvolved" game folder: ')
             else:
-                game_path = input('     Invalid input. Please enter the whole folder path to the "Ark Survival Ascended" game folder: ')
+                game_path = input(
+                    '     Invalid input. Please enter the whole folder path to the "Ark Survival Ascended" game folder: ')
     input_game_path = {'game_path': game_path}
     save_parameters_to_file(input_game_path)
 else:
