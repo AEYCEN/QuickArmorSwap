@@ -5,10 +5,10 @@ from colorama import Fore, Style
 import platform
 import configparser
 import os
+import tkinter
 
 settings_file = 'settings.txt'
 app_version = "v0.3-beta (25.03.24)"
-
 
 class Error(Exception):
     pass
@@ -249,8 +249,12 @@ if 'hotkey' not in saved_parameters:
 else:
     hotkey = load_parameter_from_file('hotkey')
 
+print('')
+set_count = int(input("     Enter your count of Amor sets(e.g. '5' or '10'): "))
 
 def perform_macro():
+    global set_count
+    set_count -= 1
     coordinates = get_mouse_coordinates(game_path, game_version)
     inventory_keybind = read_game_inventory_keybind(game_path, game_version)
 
@@ -259,12 +263,43 @@ def perform_macro():
     pyautogui.click(x=coordinates[0][0], y=coordinates[0][1], button='right')
     pyautogui.click(x=coordinates[1][0], y=coordinates[1][1])
     pyautogui.hotkey('esc')
+    if set_count > 0:
+        displayText('Amor sets left: ' + str(set_count))
 
+def hide_label(label):
+    time.sleep(1)
+    label.master.destroy()
+
+def displayText(text):
+    label = tkinter.Label(text=text, font=('Times', '30'), fg='white', bg='black')
+    label.master.overrideredirect(True)
+    x = pyautogui.size().width / 2
+    label.master.geometry(f"+{round(x)}+30")
+    label.master.lift()
+    label.master.wm_attributes("-topmost", True)
+    label.master.wm_attributes("-disabled", True)
+    label.master.wm_attributes("-transparentcolor", "black")
+    label.pack()
+    label.update()
+    hide_label(label)
+
+def update_lower_set_count():
+    global set_count
+    set_count -= 1
+    displayText('Amor sets left: ' + str(set_count))
+
+def update_upper_set_count():
+    global set_count
+    set_count += 1
+    displayText('Amor sets left: ' + str(set_count))
 
 try:
     keyboard.add_hotkey(hotkey, perform_macro)
 except Error as e:
     print("ERROR:", e)
+
+keyboard.add_hotkey('alt+1', update_lower_set_count)
+keyboard.add_hotkey('alt+2', update_upper_set_count)
 
 create_response_output(hotkey)
 
