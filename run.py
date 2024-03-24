@@ -7,7 +7,7 @@ import configparser
 import os
 
 settings_file = 'settings.txt'
-app_version = "v0.3-beta (24.03.24)"
+app_version = "v0.3-beta (25.03.24)"
 
 
 class Error(Exception):
@@ -61,22 +61,23 @@ def get_operating_system():
 
 
 def read_game_ui_scaling(i_game_path, i_game_version):
-    try:
-        config = configparser.ConfigParser(strict=False)
-        if i_game_version == 'ase':
-            file_path = i_game_path + '/ShooterGame/Saved/Config/WindowsNoEditor/GameUserSettings.ini'
-        else:
-            file_path = i_game_path + '/ShooterGame/Saved/Config/Windows/GameUserSettings.ini'
+    # try:
+    #     config = configparser.ConfigParser(strict=False, allow_no_value=True)
+    #     if i_game_version == 'ase':
+    #         file_path = i_game_path + '/ShooterGame/Saved/Config/WindowsNoEditor/GameUserSettings.ini'
+    #     else:
+    #         file_path = i_game_path + '/ShooterGame/Saved/Config/Windows/GameUserSettings.ini'
+    #
+    #     config.read(file_path)
+    #
+    #     if 'UIScaling' in config['/Script/ShooterGame.ShooterGameUserSettings']:
+    #         return config['/Script/ShooterGame.ShooterGameUserSettings']['UIScaling']
+    #     else:
+    #         raise Error('ARK is not Installed')
+    # except FileNotFoundError:
+    #     raise Error('ARK is not Installed')
 
-        config.read(file_path)
-        print(config['/Script/ShooterGame.ShooterGameUserSettings'])
-
-        if 'UIScaling' in config['/Script/ShooterGame.ShooterGameUserSettings']:
-            return config['/Script/ShooterGame.ShooterGameUserSettings']['UIScaling']
-        else:
-            raise Error('ARK is not Installed')
-    except FileNotFoundError:
-        raise Error('ARK is not Installed')
+    return 1.0000
 
 
 def read_game_inventory_keybind(i_game_path, i_game_version):
@@ -98,16 +99,18 @@ def get_mouse_coordinates(i_game_path, i_game_version):
     screen_width = pyautogui.size().width
     screen_height = pyautogui.size().height
 
+    print(ui_scaling)
+
     coordinates = []
 
     if i_game_version == 'ase':
         # Diese ermittlung der Koordinaten erstellen bitte :)
-        coordinates[0] = [420, 360]  # Koordinaten für den ersten Klick
-        coordinates[1] = [420, 410]  # Koordinaten für den zweiten Klick
+        coordinates.append([420, 360])  # Koordinaten für den ersten Klick
+        coordinates.append([420, 410])  # Koordinaten für den zweiten Klick
 
     else:
-        coordinates[0] = [420, 360]
-        coordinates[1] = [420, 410]
+        coordinates.append([420, 360])
+        coordinates.append([420, 410])
 
     return coordinates
 

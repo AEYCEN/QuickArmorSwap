@@ -79,6 +79,8 @@ If it fails because of restricting Windows policies, you may activate in the Win
 
 ![Win10PowerShellCheckbox](img/win10settings_powerShellCheckbox.png)
 
+> ℹ️ If you want to deactivate this setting again at some point, you have to click on "Show settings" and execute the command `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Restricted` and confirm with `y`.
+
 A green command line prefix saying `(venv)` should appear. If so, install all the required dependencies:
 
     pip install -r requirements.txt
@@ -115,10 +117,10 @@ A command line prefix saying `(venv)` should appear. If so, install all the requ
 
 3. For the following step, it is recommended to activate the folder view in the inventory, the button for switching is located in the upper right corner of the inventory next to the "Toggle tooltip" button.
 
-4. Either one or more complete armor sets of any type (flak, leather, etc.) must be moved into the folder.
+4. Either one or more complete armor sets of any type (flak, chitin, etc.) must be moved into the folder.
 
 QuickArmorSwap always replaces exactly one entire armor set.
-The more sets there are in the folder, the more often the macro can be used to replace defective parts.
+The more sets there are in the folder, the more often the macro can be used to replace the set.
 
 
 ### ♻️ Launching QuickArmorSwap
@@ -129,7 +131,7 @@ To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like des
 
     py run.py
 
-ℹ️ If you want to stop the running environment (venv) after using the application, just type `deactivate`.
+> ℹ️ If you want to stop the running environment (venv) after using the application, just type `deactivate`.
 
 
 #### 🐧 Launching on Linux
@@ -141,7 +143,7 @@ To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like des
     xhost +
     python run.py
 
-ℹ️ If you want to stop the running environment (venv) after using the application, just type `deactivate`. Additionally, you can enable the access control again with `xhost -`.
+> ℹ️ If you want to stop the running environment (venv) after using the application, just type `deactivate`. Additionally, you can enable the access control again with `xhost -`.
 
 
 ### 🏂 Using QuickArmorSwap
@@ -159,10 +161,11 @@ In the latter case, a `+` must be added to separate the keys for input.
 > Define the key combination `ALT+L` as a hotkey -> Enter: `alt+l`
 
 The following inputs are possible and with a `+` combinable for key combinations:
- 
-> ' ', '!', '"', '#', '$', '%', '&', "'", '(',
+
+```
+' ', '!', '"', '#', '$', '%', '&', "'", '(',
 ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7',
-'8', '9', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`',
+'8', '9', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_',
 'a', 'b', 'c', 'd', 'e','f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~',
 'accept', 'add', 'alt', 'altleft', 'altright', 'apps', 'backspace', 'capslock', 'clear',
@@ -178,10 +181,11 @@ The following inputs are possible and with a `+` combinable for key combinations
 'shift', 'shiftleft', 'sleep', 'space', 'stop', 'subtract', 'tab',
 'up', 'volumedown', 'volumemute', 'volumeup', 'win', 'winleft', 'winright',
 'command', 'option', 'optionleft', 'optionright'
+```
 
 Once the hotkey has been successfully defined, the application confirms that it is active with the defined hotkey.
 
-ℹ️ To deactivate the application and thus the macro, focus on the terminal and press `RIGHT SHIFT` once.
+> ℹ️ To deactivate the application and thus the macro, focus on the terminal and press `RIGHT SHIFT` once.
 
 
 #### 🦖 In-game
@@ -190,17 +194,17 @@ Once QuickArmorSwap has been successfully started, go into the game and into an 
 Don't change the ui scaling or the keybind to open the inventory while QuickArmorSwap is running.
 If you did the inventory preparations described in [In-Game preparations](#-in-game-preparations) you can now hit your hotkey and enjoy the magic.
 
-❕ As soon as the macro has been started, there must be no strong mouse movement during the process, otherwise the macro cannot be executed correctly.
+> ❕ As soon as the macro has been started, there must be no strong mouse movement during the process, otherwise the macro cannot be executed correctly.
 
 
 ## 🪲 Troubleshooting
 
-> Coming soon...
+*Coming soon...*
 
 
 ## 🔰 Version
 
-> This README file is associated with QuickArmorSwap `v0.3-beta`
+This README file is associated with QuickArmorSwap `v0.3-beta (25.03.24`
 
 ### ⏫ Upgrading the Version
 
