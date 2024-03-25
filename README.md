@@ -15,7 +15,7 @@
     <br>
 </p>
 
-# ARK QuickArmorSwap
+---
 
 <p style="font-size: 17px">Instant player armor swap macro for Ark: Survival Evolved and Ark: Survival Ascended.</p>
 
