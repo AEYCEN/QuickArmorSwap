@@ -183,13 +183,14 @@ If you have pressed `ALT+2` one too many times, you can use `ALT+1` to reduce th
 
 ## 🪲 Troubleshooting
 
-#### 1. The screen turns black and the game minimizes after pressing the hotkey
+1. **The screen turns black and the game minimizes after pressing the hotkey**
 
-- Your game needs to run in windowed or windowed full-screen mode. In native full-screen mode the overlay for displaying the remaining sets is not working and the screen will turn black temporarily.
+   Your game needs to run in windowed or windowed full-screen mode. In native full-screen mode the overlay for displaying the remaining sets is not working and the screen will turn black temporarily.
 
-#### 2. You want to change the hotkey for the macro
 
-- Delete the line with the key `hotkey` in the `settings.txt` file, save it and restart the program in the console.
+2. **You want to change the hotkey for the macro**
+
+   Delete the line with the key `hotkey` in the `settings.txt` file, save it and restart the program in the console.
 
 
 *More coming soon...*
