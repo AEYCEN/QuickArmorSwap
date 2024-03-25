@@ -1,17 +1,18 @@
 <p align="center">
-  <picture>
-    <source
-      width="256px"
-      media="(prefers-color-scheme: dark)"
-    >
-    <img 
-      src="img/qas.png"
-    >
-  </picture>
-  <br><br>
-  <b style="font-size: 16px">© 2024 by AEYCEN / 2_L_8</b>
-   <br>
-   Exploit the full potential and take the advantage.
+    <picture>
+        <source
+          width="256px"
+          media="(prefers-color-scheme: dark)"
+        >
+        <img 
+          src="img/qas.png"
+        >
+    </picture>
+    <br>
+    <b style="font-size: 16px">© 2024 by AEYCEN / 2_L_8</b>
+    <br>
+    Exploit the full potential and take the advantage.
+    <br>
 </p>
 
 # ARK QuickArmorSwap
