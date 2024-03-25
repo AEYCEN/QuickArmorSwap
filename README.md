@@ -1,7 +1,7 @@
 <p align="center">
     <picture>
         <source
-          width="256px"
+          width="200px"
           media="(prefers-color-scheme: dark)"
         >
         <img 
