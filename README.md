@@ -29,7 +29,7 @@ Some of the features the macro provides are:
 
 * ⚡ **In-game armor swap in just 0.5 seconds**: One pressing your configured macro hotkey, all the armor pieces currently worn by the player will be swapped with a new set prepared in the inventory within half a second
 * ⌨️ **Customizable hotkey**: After launching the application, you can define your own key or key combination for the hotkey to activate the macro
-* ✅ **Automatic settings recognition**: Automatically detects the in-game keybind settings set by the user
+<!---* ✅ **Automatic settings recognition**: Automatically detects the in-game settings set by the user and screen size and adjusts the macro accordingly--->
 * 🔢 **Armor set counter**: Displays on-screen a counter to let you know how many armor sets you have left for change
 * 🪶 **Lightweight application**: The application is very lightweight and takes up almost no storage space
 
@@ -152,9 +152,9 @@ To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like des
 #### 🖥️ In the terminal (first time use only)
 
 When launching QuickArmorSwap for the first time, you need to define some set up values:
-<!--- 1. **Your Ark version**: Enter either `ase` for Ark: Survival Evolved or `asa` for Ark: Survival Ascended--->
-1. **Your path to the Ark game installation folder**: Enter the full path to the `ARKSurvivalEvolved` or `Ark Survival Ascended` folder, like e.g.: `C:\Programs\Steam\steamapps\common\ARKSurvivalEvolved`. To get the path of this folder easily, find it in the file explorer, right-click it and select `Copy as path`. Then paste it in the console, *<ins>remove the quotation marks</ins>* and hit enter.
-2. **Your preferred hotkey for the macro**: Enther the hotkey you would like to define to activate the macro with. You can define both individual keys on the keyboard and key combinations. In the latter case, a `+` must be added to separate the keys for input.
+<!---1. **Your Ark version**: Enter either `ase` for Ark: Survival Evolved or `asa` for Ark: Survival Ascended--->
+<!---2. **Your path to the Ark game installation folder**: Enter the full path to the `ARKSurvivalEvolved` or `Ark Survival Ascended` folder, like e.g.: `C:\Programs\Steam\steamapps\common\ARKSurvivalEvolved`. To get the path of this folder easily, find it in the file explorer, right-click it and select `Copy as path`. Then paste it in the console, *<ins>remove the quotation marks</ins>* and hit enter.--->
+- **Your preferred hotkey for the macro**: Enther the hotkey you would like to define to activate the macro with. You can define both individual keys on the keyboard and key combinations. In the latter case, a `+` must be added to separate the keys for input.
 
 > Examples:
 > 

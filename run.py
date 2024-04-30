@@ -98,18 +98,18 @@ def read_game_resolution(i_game_path, i_game_version):
         raise Error('ARK is not Installed')
 
 
-def read_game_inventory_keybind(i_game_path, i_game_version):
-    # try:
-    #     config = configparser.ConfigParser(strict=False)
-    #     file_path = i_game_path + '/ShooterGame/Saved/Config/WindowsNoEditor/GameUserSettings.ini'
-    #     config.read(file_path)
-    #
-    #     if 'VoiceAudioVolume' in config['/Script/ShooterGame.ShooterGameUserSettings']:
-    #         return config['/Script/ShooterGame.ShooterGameUserSettings']['UIScaling']
-    #     else:
-    #         return "Key not found"
-    # except FileNotFoundError:
-    return "i"
+# def read_game_inventory_keybind(i_game_path, i_game_version):
+#     try:
+#         config = configparser.ConfigParser(strict=False)
+#         file_path = i_game_path + '/ShooterGame/Saved/Config/WindowsNoEditor/GameUserSettings.ini'
+#         config.read(file_path)
+#
+#         if 'VoiceAudioVolume' in config['/Script/ShooterGame.ShooterGameUserSettings']:
+#             return config['/Script/ShooterGame.ShooterGameUserSettings']['UIScaling']
+#         else:
+#             return "Key not found"
+#     except FileNotFoundError:
+#     return "i"
 
 
 def get_mouse_coordinates(i_game_path, i_game_version):
@@ -144,10 +144,11 @@ def get_mouse_coordinates(i_game_path, i_game_version):
 
 
 def create_intro_output():
+    global coloring
     app_name = "     QuickArmorSwap " + app_version
     created_by = "     © 2024 by AEYCEN / 2_L_8"
 
-    if get_operating_system() == 'Windows 11' or 'Linux':
+    if coloring:
         index_app = app_name.find("QuickArmorSwap")
         index_aeycen = created_by.find("AEYCEN")
         index_2l8 = created_by.find("2_L_8")
@@ -169,12 +170,15 @@ def create_intro_output():
     print("")
     print(app_name)
     print(created_by)
+    print("")
+    print(f'     [OS: {get_operating_system()} / Resolution: {pyautogui.size().width}x{pyautogui.size().height}px]')
 
 
 def create_response_output(i_hotkey_string):
+    global coloring
     hotkey_input_response = "     QuickArmorSwap is now RUNNING with the hotkey '" + i_hotkey_string + "'"
 
-    if get_operating_system() == 'Windows 11' or 'Linux':
+    if coloring:
         index_running = hotkey_input_response.find("RUNNING")
         index_hotkey = hotkey_input_response.find("'" + i_hotkey_string + "'")
         hotkey_length = len(i_hotkey_string)
@@ -192,9 +196,10 @@ def create_response_output(i_hotkey_string):
 
 
 def create_outro_output():
+    global coloring
     exit_hint = "     > Press '#' to deactivate QuickArmorSwap <"
 
-    if get_operating_system() == 'Windows 11' or 'Linux':
+    if coloring:
         index_open_bracket = exit_hint.find(">")
         index_close_bracket = exit_hint.find("<")
 
@@ -211,7 +216,7 @@ def create_outro_output():
 
 
 def hide_label(i_label):
-    time.sleep(3)
+    time.sleep(2)
     i_label.master.destroy()
 
 
@@ -245,11 +250,10 @@ def perform_macro():
 
 
 def displayText(i_text):
-    global resolution
     font_size = '32'
     label = tkinter.Label(text=i_text, font=('OCR A Extended', font_size), fg='white', bg='black')
     label.master.overrideredirect(True)
-    x = resolution[0] / 2
+    x = pyautogui.size().width / 2
     label.master.geometry(f"+{round(x)}+{font_size}")
     label.master.lift()
     label.master.wm_attributes("-topmost", True)
@@ -262,17 +266,27 @@ def displayText(i_text):
 
 # - # - # - # - App process - # - # - # - #
 
+coloring = False
+operating_system = get_operating_system()
+if operating_system == 'Windows 11' or operating_system == 'Linux':
+    coloring = True
+
 create_intro_output()
 
 if not os.path.exists(settings_file):
     raise Error('Settings file not found! Please create a file "settings.txt" in the QuickArmorSwap folder.')
+
 saved_parameters = load_all_parameters_from_file()
+
+# COORDINATE CALC FEATURE
+if 'first_click_coordinates' not in saved_parameters or 'second_click_coordinates' not in saved_parameters:
+    raise Error('The keys "first_click_coordinates" and "second_click_coordinates" need to have saved comma seperated numbers in the settings.txt file.')
 
 # ASA FEATURE
 if load_parameter_from_file('game_version') == 'asa':
     raise Error('Unfortunately, the development of the feature for Ark: Survival Ascended is not yet complete. Please remove the content of the settings.txt file completely.')
 
-if 'game_version' not in saved_parameters or 'game_path' not in saved_parameters or 'hotkey' not in saved_parameters:
+if 'game_version' not in saved_parameters or 'hotkey' not in saved_parameters:
     print("")
     print("     - Setting up QuickArmorSwap -")
 
@@ -296,58 +310,59 @@ if 'game_version' not in saved_parameters:
 else:
     game_version = load_parameter_from_file('game_version')
 
-if 'game_path' not in saved_parameters:
-    if game_version == 'ase':
-        game_path = input('     Enter your path to the "ARKSurvivalEvolved" game folder: ')
-    else:
-        # ASA FEATURE
-        raise Error('Unfortunately, the development of the feature for Ark: Survival Ascended is not yet complete. Please remove the content of the settings.txt file completely.')
-
-        game_path = input('     Enter your path to the "Ark Survival Ascended" game folder: ')
-
-    i = 0
-    while True:
-        if os.path.isdir(game_path) and ((game_version == 'ase' and game_path.endswith('ARKSurvivalEvolved')) or (
-                game_version == 'asa' and game_path.endswith('Ark Survival Ascended'))):
-            break
-        else:
-            i = i + 1
-
-            if game_version == 'ase':
-                if i >= 3:
-                    print(
-                        '     Input still invalid. Check out the instructions on our Github page under "Using QuickArmorSwap->In the Terminal"')
-                    game_path = input(
-                        '     Try again and enter the whole folder pathto the "ASKSurvivalEvolved" game folder: ')
-
-                game_path = input(
-                    '     Invalid input. Enter the whole folder path to the "ASKSurvivalEvolved" game folder: ')
-            else:
-                if i >= 3:
-                    print(
-                        '     Input still invalid. Check out the instructions on our Github page under "Using QuickArmorSwap->In the Terminal"')
-                    game_path = input(
-                        '     Try again and enter the whole folder pathto the "Ark Survival Ascended" game folder: ')
-
-                game_path = input(
-                    '     Invalid input. Enter the whole folder path to the "Ark Survival Ascended" game folder: ')
-
-    input_game_path = {'game_path': game_path}
-    save_parameters_to_file(input_game_path)
-else:
-    game_path = load_parameter_from_file('game_path')
+# if 'game_path' not in saved_parameters:
+#     if game_version == 'ase':
+#         game_path = input('     Enter your path to the "ARKSurvivalEvolved" game folder: ')
+#     else:
+#         game_path = input('     Enter your path to the "Ark Survival Ascended" game folder: ')
+#
+#     i = 0
+#     while True:
+#         if os.path.isdir(game_path) and ((game_version == 'ase' and game_path.endswith('ARKSurvivalEvolved')) or (
+#                 game_version == 'asa' and game_path.endswith('Ark Survival Ascended'))):
+#             break
+#         else:
+#             i = i + 1
+#
+#             if game_version == 'ase':
+#                 if i >= 3:
+#                     print(
+#                         '     Input still invalid. Check out the instructions on our Github page under "Using QuickArmorSwap->In the Terminal"')
+#                     game_path = input(
+#                         '     Try again and enter the whole folder pathto the "ASKSurvivalEvolved" game folder: ')
+#
+#                 game_path = input(
+#                     '     Invalid input. Enter the whole folder path to the "ASKSurvivalEvolved" game folder: ')
+#             else:
+#                 if i >= 3:
+#                     print(
+#                         '     Input still invalid. Check out the instructions on our Github page under "Using QuickArmorSwap->In the Terminal"')
+#                     game_path = input(
+#                         '     Try again and enter the whole folder pathto the "Ark Survival Ascended" game folder: ')
+#
+#                 game_path = input(
+#                     '     Invalid input. Enter the whole folder path to the "Ark Survival Ascended" game folder: ')
+#
+#     input_game_path = {'game_path': game_path}
+#     save_parameters_to_file(input_game_path)
+# else:
+game_path = load_parameter_from_file('game_path')
 
 if 'hotkey' not in saved_parameters:
     hotkey = input("     Enter your preferred hotkey for the macro (e.g. 'l' or 'alt+l'): ")
+    # COORDINATE CALC FEATURE
+    print('     Dont forget do adjust the coordinate values in the settings.txt file before the first use. Further instructions are on our GitHub page.')
+
     input_hotkey = {'hotkey': hotkey}
     save_parameters_to_file(input_hotkey)
 else:
     hotkey = load_parameter_from_file('hotkey')
 
 # - - - - - - - - - Reading game files  - - - - - - - - - - - #
-ui_scaling = read_game_ui_scaling(game_path, game_version)
-resolution = read_game_resolution(game_path, game_version)
-inventory_keybind = read_game_inventory_keybind(game_path, game_version)
+# ui_scaling = read_game_ui_scaling(game_path, game_version)
+# resolution = read_game_resolution(game_path, game_version)
+# inventory_keybind = read_game_inventory_keybind(game_path, game_version)
+inventory_keybind = 'i'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
 print('')
