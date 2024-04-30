@@ -4,3 +4,4 @@
 keyboard
 pyautogui
 colorama
+configparser

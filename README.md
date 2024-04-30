@@ -1,21 +1,21 @@
 <p align="center">
-  <picture>
-    <source
-      width="256px"
-      media="(prefers-color-scheme: dark)"
-    >
-    <img 
-      src="app/static/img/quickArmorSwap-full.png"
-      alt="Logo coming soon"
-    >
-  </picture>
-  <br><br>
-  <b style="font-size: 16px">© 2024 by AEYCEN / 2_L_8</b>
-   <br>
-   Exploit the full potential and take the advantage.
+    <picture>
+        <source
+          width="200px"
+          media="(prefers-color-scheme: dark)"
+        >
+        <img 
+          src="img/qas.png"
+        >
+    </picture>
+    <br>
+    <b style="font-size: 16px">© 2024 by AEYCEN / 2_L_8</b>
+    <br>
+    Exploit the full potential and take the advantage.
+    <br>
 </p>
 
-# ARK QuickArmorSwap
+---
 
 <p style="font-size: 17px">Instant player armor swap macro for Ark: Survival Evolved and Ark: Survival Ascended.</p>
 
@@ -29,8 +29,9 @@ Some of the features the macro provides are:
 
 * ⚡ **In-game armor swap in just 0.5 seconds**: One pressing your configured macro hotkey, all the armor pieces currently worn by the player will be swapped with a new set prepared in the inventory within half a second
 * ⌨️ **Customizable hotkey**: After launching the application, you can define your own key or key combination for the hotkey to activate the macro
+<!---* ✅ **Automatic settings recognition**: Automatically detects the in-game settings set by the user and screen size and adjusts the macro accordingly--->
+* 🔢 **Armor set counter**: Displays on-screen a counter to let you know how many armor sets you have left for change
 * 🪶 **Lightweight application**: The application is very lightweight and takes up almost no storage space
-* ✅ **Automatic settings recognition**: Automatically detects the in-game settings set by the user and screen size and adjusts the macro accordingly
 
 
 ## 🛠️ Installation
@@ -111,7 +112,7 @@ A command line prefix saying `(venv)` should appear. If so, install all the requ
 ### 🦖 In-Game preparations
 <a name="in-game-preparations"></a>
 
-1. The game needs to run in full-screen.
+1. The game needs to run in windowed or windowed full-screen mode.
 
 2. In order for QuickArmorSwap to be able to change the armor, a folder with any name must be created in the player's inventory (however, "Armor" is recommended). 
 
@@ -148,11 +149,12 @@ To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like des
 
 ### 🏂 Using QuickArmorSwap
 
-#### 🖥️ In the terminal
+#### 🖥️ In the terminal (first time use only)
 
-First, the program will ask you which hotkey you would like to define to activate the macro.
-You can define both individual keys on the keyboard and key combinations.
-In the latter case, a `+` must be added to separate the keys for input.
+When launching QuickArmorSwap for the first time, you need to define some set up values:
+<!---1. **Your Ark version**: Enter either `ase` for Ark: Survival Evolved or `asa` for Ark: Survival Ascended--->
+<!---2. **Your path to the Ark game installation folder**: Enter the full path to the `ARKSurvivalEvolved` or `Ark Survival Ascended` folder, like e.g.: `C:\Programs\Steam\steamapps\common\ARKSurvivalEvolved`. To get the path of this folder easily, find it in the file explorer, right-click it and select `Copy as path`. Then paste it in the console, *<ins>remove the quotation marks</ins>* and hit enter.--->
+- **Your preferred hotkey for the macro**: Enther the hotkey you would like to define to activate the macro with. You can define both individual keys on the keyboard and key combinations. In the latter case, a `+` must be added to separate the keys for input.
 
 > Examples:
 > 
@@ -160,51 +162,50 @@ In the latter case, a `+` must be added to separate the keys for input.
 > 
 > Define the key combination `ALT+L` as a hotkey -> Enter: `alt+l`
 
-The following inputs are possible and with a `+` combinable for key combinations:
-
-```
-' ', '!', '"', '#', '$', '%', '&', "'", '(',
-')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7',
-'8', '9', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_',
-'a', 'b', 'c', 'd', 'e','f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~',
-'accept', 'add', 'alt', 'altleft', 'altright', 'apps', 'backspace', 'capslock', 'clear',
-'convert', 'ctrl', 'ctrlleft', 'ctrlright', 'decimal', 'del', 'delete',
-'divide', 'down', 'end', 'enter', 'esc', 'escape', 'execute', 'f1', 'f10',
-'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19', 'f2', 'f20',
-'f21', 'f22', 'f23', 'f24', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9',
-'final', 'fn', 'home', 'insert', 'left', 'multiply', 'nexttrack',
-'nonconvert', 'num0', 'num1', 'num2', 'num3', 'num4', 'num5', 'num6',
-'num7', 'num8', 'num9', 'numlock', 'pagedown', 'pageup', 'pause', 'pgdn',
-'pgup', 'playpause', 'prevtrack', 'print', 'printscreen', 'prntscrn',
-'prtsc', 'prtscr', 'return', 'right', 'scrolllock', 'select', 'separator',
-'shift', 'shiftleft', 'sleep', 'space', 'stop', 'subtract', 'tab',
-'up', 'volumedown', 'volumemute', 'volumeup', 'win', 'winleft', 'winright',
-'command', 'option', 'optionleft', 'optionright'
-```
-
 Once the hotkey has been successfully defined, the application confirms that it is active with the defined hotkey.
+The next time you launch QuickArmorSwap, you can instantly use it without entering any values in the console.
 
-> ℹ️ To deactivate the application and thus the macro, focus on the terminal and press `RIGHT SHIFT` once.
+> ℹ️ To deactivate the application and thus the macro, press `#` once.
 
 
 #### 🦖 In-game
 
 Once QuickArmorSwap has been successfully started, go into the game and into an active session (single player or multiplayer).
 Don't change the ui scaling or the keybind to open the inventory while QuickArmorSwap is running.
+
+> ❗ **Important: Because the feature of the automatic mouseclick coordinate calculation is not implemented yet, you need to adjust the values "first_click_coordinates" and "second_click_coordinates" in the settings.txt file to your fitting.**
+> 
+> For that, you need to press the hotkey ingame and look where the mouseclicks happen.
+> - If they are too far right, you have to reduce the value of the numbers *in front of* the commas by the same factor.
+> - If the clicks are too far up, you need to reduce the value of the numbers *behind* the commas by the same factor
+
 If you did the inventory preparations described in [In-Game preparations](#-in-game-preparations) you can now hit your hotkey and enjoy the magic.
 
 > ❕ As soon as the macro has been started, there must be no strong mouse movement during the process, otherwise the macro cannot be executed correctly.
 
+After activating the macro, you can see at the top of the screen for 3 seconds how many armor sets are remaining for swapping.
+Once you have swapped all sets and refilled the folder, you don't have to restart QuickArmorSwap, just press `ALT+2` as many times as you have added sets back into the folder.
+If you have pressed `ALT+2` one too many times, you can use `ALT+1` to reduce the number by one.
+
 
 ## 🪲 Troubleshooting
 
-*Coming soon...*
+1. **The screen turns black and the game minimizes after pressing the hotkey**
+
+   Your game needs to run in windowed or windowed full-screen mode. In native full-screen mode the overlay for displaying the remaining sets is not working and the screen will turn black temporarily.
+
+
+2. **You want to change the hotkey for the macro**
+
+   Delete the line with the key `hotkey` in the `settings.txt` file, save it and restart the program in the console.
+
+
+*More coming soon...*
 
 
 ## 🔰 Version
 
-This README file is associated with QuickArmorSwap `v0.3-beta (25.03.24`
+This README file is associated with QuickArmorSwap `v0.3-beta (25.03.24)`
 
 ### ⏫ Upgrading the Version
 
@@ -219,8 +220,8 @@ To upgrade QuickArmorSwap to a newer version, simply delete the folder of the ol
 Create an issue ticket on GitHub for bug reports and feature requests or join our [Discord server](https://discord.gg/N55gSQcVEC) for individual support.
 
 
-## 📜 Licence
+## 📜 License
 
-QuickArmorSwap is licensed under the GPLv3 licence. Please see the [licence file](LICENSE) for more information.
+QuickArmorSwap is licensed under the GPLv3 licence. Please see the [license file](LICENSE) for more information.
 [tl;dr](https://www.tldrlegal.com/license/gnu-general-public-license-v3-gpl-3) you may copy, distribute and modify QuickArmorSwap as long as you track changes/dates in source files.
 Any modifications to QuickArmorSwap must also be made available under the GPL along with build & install instructions.
