@@ -8,7 +8,7 @@ import os
 import tkinter
 
 settings_file = 'settings.txt'
-app_version = "v0.3-beta (25.03.24)"
+app_version = "v0.4-beta (30.04.24)"
 
 
 class Error(Exception):
@@ -17,11 +17,9 @@ class Error(Exception):
 
 def save_parameters_to_file(i_parameters_to_write):
     if not os.path.exists(settings_file):
-        with open(settings_file, 'w') as file:
-            file.write('')
+        raise Error('Settings file not found! Please create a file "settings.txt" in the QuickArmorSwap folder')
 
     existing_parameters = load_all_parameters_from_file()
-
     existing_parameters.update(i_parameters_to_write)
 
     with open(settings_file, 'w') as file:
@@ -115,21 +113,32 @@ def read_game_inventory_keybind(i_game_path, i_game_version):
 
 
 def get_mouse_coordinates(i_game_path, i_game_version):
-    global ui_scaling
-    global resolution
-    screen_width = resolution[0]
-    screen_height = resolution[1]
-
+    # global ui_scaling
+    # global resolution
+    # screen_width = resolution[0]
+    # screen_height = resolution[1]
+    #
     coordinates = []
+    #
+    # if i_game_version == 'ase':
+    #     # Diese ermittlung der Koordinaten erstellen bitte :)
+    #     coordinates.append([400, 660])  # Koordinaten für den ersten Klick
+    #     coordinates.append([400, 710])  # Koordinaten für den zweiten Klick
+    #
+    # else:
+    #     coordinates.append([420, 360])
+    #     coordinates.append([420, 410])
 
-    if i_game_version == 'ase':
-        # Diese ermittlung der Koordinaten erstellen bitte :)
-        coordinates.append([400, 660])  # Koordinaten für den ersten Klick
-        coordinates.append([400, 710])  # Koordinaten für den zweiten Klick
+    fc_string = load_parameter_from_file('first_click_coordinates')
+    fc_parts = fc_string.split(',')
+    first_coordinates = [int(part) for part in fc_parts]
 
-    else:
-        coordinates.append([420, 360])
-        coordinates.append([420, 410])
+    sc_string = load_parameter_from_file('second_click_coordinates')
+    sc_parts = sc_string.split(',')
+    second_coordinates = [int(part) for part in sc_parts]
+
+    coordinates.append(first_coordinates)
+    coordinates.append(second_coordinates)
 
     return coordinates
 
@@ -255,40 +264,74 @@ def displayText(i_text):
 
 create_intro_output()
 
+if not os.path.exists(settings_file):
+    raise Error('Settings file not found! Please create a file "settings.txt" in the QuickArmorSwap folder.')
 saved_parameters = load_all_parameters_from_file()
+
+# ASA FEATURE
+if load_parameter_from_file('game_version') == 'asa':
+    raise Error('Unfortunately, the development of the feature for Ark: Survival Ascended is not yet complete. Please remove the content of the settings.txt file completely.')
 
 if 'game_version' not in saved_parameters or 'game_path' not in saved_parameters or 'hotkey' not in saved_parameters:
     print("")
     print("     - Setting up QuickArmorSwap -")
 
 if 'game_version' not in saved_parameters:
-    while True:
-        game_version = input("     Enter your ARK Version. Survival Evolved [ase] or Survival Ascended [asa]: ")
-        if game_version.lower() in ['ase', 'asa']:
-            break
-        else:
-            print('     Invalid input. Please enter "ase" or "asa".')
+    # while True:
+    #     game_version = input("     Enter your ARK Version. Survival Evolved [ase] or Survival Ascended [asa]: ")
+    #     if game_version.lower() in ['ase', 'asa']:
+    #         break
+    #     else:
+    #         print('     Invalid input. Please enter "ase" or "asa".')
+    #
+    #     if game_version == 'asa':
+    #         print()
+    #         print(
+    #             '     Unfortunately, the development of the feature for ASA is not yet complete. The program will now end')
+    #         exit(1)
+    game_version = 'ase'
+
     input_game_version = {'game_version': game_version}
     save_parameters_to_file(input_game_version)
 else:
     game_version = load_parameter_from_file('game_version')
 
 if 'game_path' not in saved_parameters:
+    if game_version == 'ase':
+        game_path = input('     Enter your path to the "ARKSurvivalEvolved" game folder: ')
+    else:
+        # ASA FEATURE
+        raise Error('Unfortunately, the development of the feature for Ark: Survival Ascended is not yet complete. Please remove the content of the settings.txt file completely.')
+
+        game_path = input('     Enter your path to the "Ark Survival Ascended" game folder: ')
+
+    i = 0
     while True:
-        if game_version == 'ase':
-            game_path = input('     Enter your path to the "ARKSurvivalEvolved" game folder: ')
-        else:
-            game_path = input('     Enter your path to the "Ark Survival Ascended" game folder: ')
         if os.path.isdir(game_path) and ((game_version == 'ase' and game_path.endswith('ARKSurvivalEvolved')) or (
                 game_version == 'asa' and game_path.endswith('Ark Survival Ascended'))):
             break
         else:
+            i = i + 1
+
             if game_version == 'ase':
+                if i >= 3:
+                    print(
+                        '     Input still invalid. Check out the instructions on our Github page under "Using QuickArmorSwap->In the Terminal"')
+                    game_path = input(
+                        '     Try again and enter the whole folder pathto the "ASKSurvivalEvolved" game folder: ')
+
                 game_path = input(
-                    '     Invalid input. Please enter the whole folder path to the "ASKSurvivalEvolved" game folder: ')
+                    '     Invalid input. Enter the whole folder path to the "ASKSurvivalEvolved" game folder: ')
             else:
+                if i >= 3:
+                    print(
+                        '     Input still invalid. Check out the instructions on our Github page under "Using QuickArmorSwap->In the Terminal"')
+                    game_path = input(
+                        '     Try again and enter the whole folder pathto the "Ark Survival Ascended" game folder: ')
+
                 game_path = input(
-                    '     Invalid input. Please enter the whole folder path to the "Ark Survival Ascended" game folder: ')
+                    '     Invalid input. Enter the whole folder path to the "Ark Survival Ascended" game folder: ')
+
     input_game_path = {'game_path': game_path}
     save_parameters_to_file(input_game_path)
 else:
@@ -316,14 +359,12 @@ while True:
     else:
         print('     Invalid input. Please enter an integer number.')
 
-
 try:
     keyboard.add_hotkey(hotkey, perform_macro)
     keyboard.add_hotkey('alt+1', update_lower_set_count)
     keyboard.add_hotkey('alt+2', update_upper_set_count)
 except Error as e:
     print("ERROR:", e)
-
 
 create_response_output(hotkey)
 

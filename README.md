@@ -29,7 +29,7 @@ Some of the features the macro provides are:
 
 * ⚡ **In-game armor swap in just 0.5 seconds**: One pressing your configured macro hotkey, all the armor pieces currently worn by the player will be swapped with a new set prepared in the inventory within half a second
 * ⌨️ **Customizable hotkey**: After launching the application, you can define your own key or key combination for the hotkey to activate the macro
-* ✅ **Automatic settings recognition**: Automatically detects the in-game settings set by the user and screen size and adjusts the macro accordingly
+* ✅ **Automatic settings recognition**: Automatically detects the in-game keybind settings set by the user
 * 🔢 **Armor set counter**: Displays on-screen a counter to let you know how many armor sets you have left for change
 * 🪶 **Lightweight application**: The application is very lightweight and takes up almost no storage space
 
@@ -152,9 +152,9 @@ To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like des
 #### 🖥️ In the terminal (first time use only)
 
 When launching QuickArmorSwap for the first time, you need to define some set up values:
-1. **Your Ark version**: Enter either `ase` for Ark: Survival Evolved or `asa` for Ark: Survival Ascended
-2. **Your path to the Ark game installation folder**: Enter the full path to the `ARKSurvivalEvolved` or `Ark Survival Ascended` folder, like e.g.: `C:\Programs\Steam\steamapps\common\ARKSurvivalEvolved`. To get the path of this folder easily, find it in the file explorer, right-click it and select `Copy as path`. Then paste it in the console, *remove the quotation marks* and hit enter.
-3. **Your preferred hotkey for the macro**: Enther the hotkey you would like to define to activate the macro with. You can define both individual keys on the keyboard and key combinations. In the latter case, a `+` must be added to separate the keys for input.
+<!--- 1. **Your Ark version**: Enter either `ase` for Ark: Survival Evolved or `asa` for Ark: Survival Ascended--->
+1. **Your path to the Ark game installation folder**: Enter the full path to the `ARKSurvivalEvolved` or `Ark Survival Ascended` folder, like e.g.: `C:\Programs\Steam\steamapps\common\ARKSurvivalEvolved`. To get the path of this folder easily, find it in the file explorer, right-click it and select `Copy as path`. Then paste it in the console, *<ins>remove the quotation marks</ins>* and hit enter.
+2. **Your preferred hotkey for the macro**: Enther the hotkey you would like to define to activate the macro with. You can define both individual keys on the keyboard and key combinations. In the latter case, a `+` must be added to separate the keys for input.
 
 > Examples:
 > 
@@ -172,6 +172,13 @@ The next time you launch QuickArmorSwap, you can instantly use it without enteri
 
 Once QuickArmorSwap has been successfully started, go into the game and into an active session (single player or multiplayer).
 Don't change the ui scaling or the keybind to open the inventory while QuickArmorSwap is running.
+
+> ❗ **Important: Because the feature of the automatic mouseclick coordinate calculation is not implemented yet, you need to adjust the values "first_click_coordinates" and "second_click_coordinates" in the settings.txt file to your fitting.**
+> 
+> For that, you need to press the hotkey ingame and look where the mouseclicks happen.
+> - If they are too far right, you have to reduce the value of the numbers *in front of* the commas by the same factor.
+> - If the clicks are too far up, you need to reduce the value of the numbers *behind* the commas by the same factor
+
 If you did the inventory preparations described in [In-Game preparations](#-in-game-preparations) you can now hit your hotkey and enjoy the magic.
 
 > ❕ As soon as the macro has been started, there must be no strong mouse movement during the process, otherwise the macro cannot be executed correctly.
