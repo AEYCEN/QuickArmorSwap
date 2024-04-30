@@ -17,7 +17,7 @@
 
 ---
 
-<p style="font-size: 17px">Instant player armor swap macro for Ark: Survival Evolved and Ark: Survival Ascended.</p>
+<p style="font-size: 17px">Instant player armor swap macro for Ark: Survival Evolved and soon Ark: Survival Ascended.</p>
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/ReVanced/revanced-patches/release.yml)
 ![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)
@@ -205,7 +205,7 @@ If you have pressed `ALT+2` one too many times, you can use `ALT+1` to reduce th
 
 ## 🔰 Version
 
-This README file is associated with QuickArmorSwap `v0.3-beta (25.03.24)`
+This README file is associated with QuickArmorSwap `v0.4-beta (30.04.24)`
 
 ### ⏫ Upgrading the Version
 
