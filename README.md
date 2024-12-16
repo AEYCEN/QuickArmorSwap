@@ -17,7 +17,7 @@
 
 ---
 
-<p style="font-size: 17px">Instant player armor swap macro for Ark: Survival Evolved and soon Ark: Survival Ascended.</p>
+<p style="font-size: 17px">Instant player armor swap macro for Ark: Survival Evolved and Ark: Survival Ascended.</p>
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/ReVanced/revanced-patches/release.yml)
 ![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)
@@ -36,14 +36,16 @@ Some of the features the macro provides are:
 
 ## 🛠️ Installation
 
-QuickArmorSwap does require [Python](https://www.python.org/downloads/) on the machine in order to run.
+QuickArmorSwap does require [Python](https://www.python.org/downloads/) on the machine in order to run. Make sure that the `Tcl/Tk and IDLE` option is enabled during installation.
+
 After downloading the QuickArmorSwap .zip file from GitHub, extract the files and copy the root folder to a desired location (e.g. Desktop).
 
+The following instructions are for Windows 10 & 11. If you use Linux, look at the [Installation guide for Linux](#-installation-linux)
 
-### 🪟 Installation for Windows
 <a name="installation"></a>
 
-#### ▶️ Windows 11
+### 🪟
+Installation on Windows 11
 
 After that, right-click the folder and select `Open in Terminal`. 
 Then, try creating the virtual environment with the following command. 
@@ -62,7 +64,7 @@ A green command line prefix saying `(venv)` should appear. If so, install all th
 
     pip install -r requirements.txt
 
-#### ▶️ Windows 10
+### 🔟 Installation on Windows 10
 
 After extracting the files, go with the file explorer in the extracted QuickArmorSwap folder and click and copy its path from the Explorer address bar.
 After copying it, right-click the Windows icon in the taskbar and select `PowerShell`.
@@ -86,27 +88,6 @@ A green command line prefix saying `(venv)` should appear. If so, install all th
 
     pip install -r requirements.txt
 
-
-### 🐧 Installation for Linux
-
-Right-click the root folder and select `Open in Terminal`.
-If you are using Ubuntu Linux, you need to install the python virtual environment library first:
-
-    sudo apt install python3-venv
-
-Then create the virtual environment with the following command:
-
-    python3 -m venv venv
-
-After executing the last command you shouldn't get a response. Now you can activate the virtual environment with the following command:
-
-    . venv/bin/activate
-
-A command line prefix saying `(venv)` should appear. If so, install all the required dependencies:
-
-    pip install -r requirements.txt
-
-
 ## 🚀 Usage
 
 ### 🦖 In-Game preparations
@@ -126,8 +107,6 @@ The more sets there are in the folder, the more often the macro can be used to r
 
 ### ♻️ Launching QuickArmorSwap
 
-#### 🪟 Launching on Windows
-
 To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like described in the [installation guide](#-installation) and always activate the environment with `venv\Scripts\activate` before you run the application with the following command:
 
     py run.py
@@ -135,19 +114,8 @@ To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like des
 > ℹ️ If you want to stop the running environment (venv) after using the application, just type `deactivate`.
 
 
-#### 🐧 Launching on Linux
-
-To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like described in the installation guide and execute the following commands:
-
-    . venv/Scripts/activate
-    sudo su
-    xhost +
-    python run.py
-
-> ℹ️ If you want to stop the running environment (venv) after using the application, just type `deactivate`. Additionally, you can enable the access control again with `xhost -`.
-
-
-### 🏂 Using QuickArmorSwap
+### ✨ Using QuickArmorSwap
+<a name="usage"></a>
 
 #### 🖥️ In the terminal (first time use only)
 
@@ -175,15 +143,18 @@ Don't change the ui scaling or the keybind to open the inventory while QuickArmo
 
 > ❗ **Important: Because the feature of the automatic mouseclick coordinate calculation is not implemented yet, you need to adjust the values "first_click_coordinates" and "second_click_coordinates" in the settings.txt file to your fitting.**
 > 
-> For that, you need to press the hotkey ingame and look where the mouseclicks happen.
-> - If they are too far right, you have to reduce the value of the numbers *in front of* the commas by the same factor.
-> - If the clicks are too far up, you need to reduce the value of the numbers *behind* the commas by the same factor
+> For that, you need to press the hotkey ingame and look where the mouse clicks happen.
+> The first click needs to be on the created armor folder in the inventory.
+> The second click needs to be a few pixels lower on the selection for armor swap in the dropdown menu.
+> You have to look very closely, the macro is performing these action very quick.
+> - If the clicks are too far right, you have to reduce the value of the numbers *in front of* the commas by roughly the same factor.
+> - If they are too far up, you need to reduce the value of the numbers *behind* the commas by roughly the same factor.
 
 If you did the inventory preparations described in [In-Game preparations](#-in-game-preparations) you can now hit your hotkey and enjoy the magic.
 
 > ❕ As soon as the macro has been started, there must be no strong mouse movement during the process, otherwise the macro cannot be executed correctly.
 
-After activating the macro, you can see at the top of the screen for 3 seconds how many armor sets are remaining for swapping.
+After activating the macro, you can see at the top of the screen for 2 seconds how many armor sets are remaining for swapping.
 Once you have swapped all sets and refilled the folder, you don't have to restart QuickArmorSwap, just press `ALT+2` as many times as you have added sets back into the folder.
 If you have pressed `ALT+2` one too many times, you can use `ALT+1` to reduce the number by one.
 
@@ -200,16 +171,23 @@ If you have pressed `ALT+2` one too many times, you can use `ALT+1` to reduce th
    Delete the line with the key `hotkey` in the `settings.txt` file, save it and restart the program in the console.
 
 
+3. **You put a value higher than 1 for your count of Armor sets, or you pressed `ALT+1` or `ALT+2` and the script is immediately crashing**
+
+   You probably installed python without enabling the `Tcl/Tk and IDLE` option. Reinstall python and enable this option during the installation process.
+
+
 *More coming soon...*
 
 
 ## 🔰 Version
 
-This README file is associated with QuickArmorSwap `v0.4-beta (30.04.24)`
+This README file is associated with QuickArmorSwap `v0.5-beta.dev2 (17.12.24)`
+
 
 ### ⏫ Upgrading the Version
 
 To upgrade QuickArmorSwap to a newer version, simply delete the folder of the old version and replace it with the folder extracted from the download of the new version.
+
 
 ## 💫 Contact
 
@@ -219,6 +197,41 @@ To upgrade QuickArmorSwap to a newer version, simply delete the folder of the ol
 
 Create an issue ticket on GitHub for bug reports and feature requests or join our [Discord server](https://discord.gg/N55gSQcVEC) for individual support.
 
+
+## 🐧 Installation and Launching on Linux
+<a name="installation-linux"></a>
+
+### 🛠️ Installation
+
+Right-click the root folder and select `Open in Terminal`.
+If you are using Ubuntu Linux, you need to install the python virtual environment library first:
+
+    sudo apt install python3-venv
+
+Then create the virtual environment with the following command:
+
+    python3 -m venv venv
+
+After executing the last command you shouldn't get a response. Now you can activate the virtual environment with the following command:
+
+    . venv/bin/activate
+
+A command line prefix saying `(venv)` should appear. If so, install all the required dependencies:
+
+    pip install -r requirements.txt
+
+### ♻️ Launching
+
+To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like described in the installation guide and execute the following commands:
+
+    . venv/Scripts/activate
+    sudo su
+    xhost +
+    python run.py
+
+> ℹ️ If you want to stop the running environment (venv) after using the application, just type `deactivate`. Additionally, you can enable the access control again with `xhost -`.
+
+After launching the application, look [how you can use it](#-usage).
 
 ## 📜 License
 

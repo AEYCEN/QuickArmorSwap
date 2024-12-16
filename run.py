@@ -8,7 +8,7 @@ import os
 import tkinter
 
 settings_file = 'settings.txt'
-app_version = "v0.4-beta (30.04.24)"
+app_version = "v0.5-beta.dev2 (17.12.24)"
 
 
 class Error(Exception):
@@ -121,7 +121,6 @@ def get_mouse_coordinates(i_game_path, i_game_version):
     coordinates = []
     #
     # if i_game_version == 'ase':
-    #     # Diese ermittlung der Koordinaten erstellen bitte :)
     #     coordinates.append([400, 660])  # Koordinaten für den ersten Klick
     #     coordinates.append([400, 710])  # Koordinaten für den zweiten Klick
     #
