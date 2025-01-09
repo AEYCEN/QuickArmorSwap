@@ -8,7 +8,7 @@ import os
 import tkinter
 
 settings_file = 'settings.txt'
-app_version = "v0.5-beta.dev2 (17.12.24)"
+app_version = "v0.5-beta.dev3 (10.01.25)"
 
 
 class Error(Exception):
@@ -173,14 +173,14 @@ def create_intro_output():
     print(f'     [OS: {get_operating_system()} / Resolution: {pyautogui.size().width}x{pyautogui.size().height}px]')
 
 
-def create_response_output(i_hotkey_string):
+def create_response_output(i_hotkey):
     global coloring
-    hotkey_input_response = "     QuickArmorSwap is now RUNNING with the hotkey '" + i_hotkey_string + "'"
+    hotkey_input_response = "     QuickArmorSwap is now RUNNING with the hotkey '" + i_hotkey + "'"
 
     if coloring:
         index_running = hotkey_input_response.find("RUNNING")
-        index_hotkey = hotkey_input_response.find("'" + i_hotkey_string + "'")
-        hotkey_length = len(i_hotkey_string)
+        index_hotkey = hotkey_input_response.find("'" + i_hotkey + "'")
+        hotkey_length = len(i_hotkey)
 
         hotkey_input_response = (
             f"{hotkey_input_response[:index_running]}{Fore.GREEN}"
@@ -194,9 +194,9 @@ def create_response_output(i_hotkey_string):
     print(hotkey_input_response)
 
 
-def create_outro_output():
+def create_outro_output(i_deactivation_hotkey):
     global coloring
-    exit_hint = "     > Press '#' to deactivate QuickArmorSwap <"
+    exit_hint = "     > Press '" + i_deactivation_hotkey + "' to deactivate QuickArmorSwap <"
 
     if coloring:
         index_open_bracket = exit_hint.find(">")
@@ -211,7 +211,7 @@ def create_outro_output():
         )
 
     print(exit_hint)
-    keyboard.wait('#')
+    keyboard.wait(i_deactivation_hotkey)
 
 
 def hide_label(i_label):
@@ -345,17 +345,26 @@ else:
 #     input_game_path = {'game_path': game_path}
 #     save_parameters_to_file(input_game_path)
 # else:
-game_path = load_parameter_from_file('game_path')
+#     game_path = load_parameter_from_file('game_path')
 
 if 'hotkey' not in saved_parameters:
-    hotkey = input("     Enter your preferred hotkey for the macro (e.g. 'l' or 'alt+l'): ")
-    # COORDINATE CALC FEATURE
-    print('     Dont forget do adjust the coordinate values in the settings.txt file before the first use. Further instructions are on our GitHub page.')
-
+    hotkey = input("     Enter your preferred hotkey to execute the macro (e.g. 'l' or 'alt+l'): ")
     input_hotkey = {'hotkey': hotkey}
     save_parameters_to_file(input_hotkey)
 else:
     hotkey = load_parameter_from_file('hotkey')
+
+if 'deactivation_hotkey' not in saved_parameters:
+    deactivation_hotkey = input("     Enter your preferred hotkey to deactivate the macro (e.g. '#'): ")
+    #
+    # COORDINATE CALC FEATURE
+    print('')
+    print('     Dont forget do adjust the coordinate values in the settings.txt file before the first use. Further instructions are on our GitHub page.')
+
+    input_deactivation_hotkey = {'deactivation_hotkey': deactivation_hotkey}
+    save_parameters_to_file(input_deactivation_hotkey)
+else:
+    deactivation_hotkey = load_parameter_from_file('deactivation_hotkey')
 
 # - - - - - - - - - Reading game files  - - - - - - - - - - - #
 # ui_scaling = read_game_ui_scaling(game_path, game_version)
@@ -382,4 +391,4 @@ except Error as e:
 
 create_response_output(hotkey)
 
-create_outro_output()
+create_outro_output(deactivation_hotkey)

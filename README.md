@@ -44,8 +44,7 @@ The following instructions are for Windows 10 & 11. If you use Linux, look at th
 
 <a name="installation"></a>
 
-### 🪟
-Installation on Windows 11
+### 🪟 Installation on Windows 11
 
 After that, right-click the folder and select `Open in Terminal`. 
 Then, try creating the virtual environment with the following command. 
@@ -59,6 +58,8 @@ After executing the last command you shouldn't get a response. Now you can activ
 If it fails because of restricting Windows policies, you may activate in the Windows-Settings under `System > For developers` the slider `Change execution policy` at the bottom of the page, like shown in the screenshot below:
 
 ![Win11PowerShellSlider](img/win11settings_powerShellSlider.png)
+
+If Windows asks you if you want to execute this script from a non-certified publisher, with the options to answer with `E`,`N`,`M` or `A`, enter `A` to allow the execution and not get asked about this again.
 
 A green command line prefix saying `(venv)` should appear. If so, install all the required dependencies:
 
@@ -122,7 +123,8 @@ To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like des
 When launching QuickArmorSwap for the first time, you need to define some set up values:
 <!---1. **Your Ark version**: Enter either `ase` for Ark: Survival Evolved or `asa` for Ark: Survival Ascended--->
 <!---2. **Your path to the Ark game installation folder**: Enter the full path to the `ARKSurvivalEvolved` or `Ark Survival Ascended` folder, like e.g.: `C:\Programs\Steam\steamapps\common\ARKSurvivalEvolved`. To get the path of this folder easily, find it in the file explorer, right-click it and select `Copy as path`. Then paste it in the console, *<ins>remove the quotation marks</ins>* and hit enter.--->
-- **Your preferred hotkey for the macro**: Enther the hotkey you would like to define to activate the macro with. You can define both individual keys on the keyboard and key combinations. In the latter case, a `+` must be added to separate the keys for input.
+- **Your preferred hotkey to execute the macro**: Enter the hotkey you would like to define to execute the macro with. You can define both individual keys on the keyboard and key combinations. In the latter case, a `+` must be added to separate the keys for input.
+- **Your preferred hotkey to deactivate the macro**: Enter the hotkey you would like to define to deactivate the macro with. It works the same as in the previous prompt.
 
 > Examples:
 > 
@@ -130,10 +132,10 @@ When launching QuickArmorSwap for the first time, you need to define some set up
 > 
 > Define the key combination `ALT+L` as a hotkey -> Enter: `alt+l`
 
-Once the hotkey has been successfully defined, the application confirms that it is active with the defined hotkey.
+Once the hotkeys have been successfully defined, the application confirms that it is active and waits to be executed with the defined execution hotkey.
 The next time you launch QuickArmorSwap, you can instantly use it without entering any values in the console.
 
-> ℹ️ To deactivate the application and thus the macro, press `#` once.
+> ℹ️ To deactivate the application and thus the macro, press your defined deactivation hotkey once.
 
 
 #### 🦖 In-game
@@ -143,7 +145,7 @@ Don't change the ui scaling or the keybind to open the inventory while QuickArmo
 
 > ❗ **Important: Because the feature of the automatic mouseclick coordinate calculation is not implemented yet, you need to adjust the values "first_click_coordinates" and "second_click_coordinates" in the settings.txt file to your fitting.**
 > 
-> For that, you need to press the hotkey ingame and look where the mouse clicks happen.
+> For that, you need to press the hotkey in-game and look where the mouse clicks happen.
 > The first click needs to be on the created armor folder in the inventory.
 > The second click needs to be a few pixels lower on the selection for armor swap in the dropdown menu.
 > You have to look very closely, the macro is performing these action very quick.
@@ -181,7 +183,7 @@ If you have pressed `ALT+2` one too many times, you can use `ALT+1` to reduce th
 
 ## 🔰 Version
 
-This README file is associated with QuickArmorSwap `v0.5-beta.dev2 (17.12.24)`
+This README file is associated with QuickArmorSwap `v0.5-beta.dev3 (10.01.25)`
 
 
 ### ⏫ Upgrading the Version
