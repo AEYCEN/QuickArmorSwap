@@ -1,354 +1,1273 @@
-import time
-import pyautogui
-import keyboard
-from colorama import Fore, Style
-import platform
-import configparser
+"""
+QuickArmorSwap — ARK: Survival Evolved Macro Tool
+Quickly swap armor sets in-game with a single hotkey press.
+
+© 2024 by AEYCEN / 2_L_8
+"""
+
+from __future__ import annotations
+
 import os
-import tkinter
+import platform
+import queue
+import re
+import sys
 import threading
+import time
+import tkinter as tk
+import tkinter.font as tkfont
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Optional
 
-settings_file = 'settings.txt'
-app_version = "v0.5-beta.dev3 (10.01.25)"
+import keyboard
+import pyautogui
 
+# ─── Rich Console Setup ────────────────────────────────────────────────────────
+# `rich` liefert schöne Farben, Panels, Tabellen und Prompts im Terminal.
+# Falls nicht installiert: pip install rich
+try:
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.prompt import Prompt, IntPrompt
+    from rich.table import Table
+    from rich.text import Text
+    from rich import box
+    HAS_RICH = True
+except ImportError:
+    HAS_RICH = False
 
-class Error(Exception):
-    pass
+APP_VERSION = "v1.0-beta1 (11.03.26)"
+SETTINGS_FILE = Path("settings.txt")
 
-
-def save_parameters_to_file(i_parameters_to_write):
-    if not os.path.exists(settings_file):
-        raise Error('Settings file not found! Please create a file "settings.txt" in the QuickArmorSwap folder')
-
-    existing_parameters = load_all_parameters_from_file()
-    existing_parameters.update(i_parameters_to_write)
-
-    with open(settings_file, 'w') as file:
-        for key, value in existing_parameters.items():
-            file.write(f"{key}={value}\n")
-
-
-def load_all_parameters_from_file():
-    parameters = {}
-    with open(settings_file, 'r') as file:
-        for line in file:
-            line = line.strip()
-            if '=' not in line or line == '':  # FIX: Leere Zeilen und Zeilen ohne '=' abfangen
-                continue
-            key, value = line.split('=', 1)  # FIX: maxsplit=1, falls der Wert ein '=' enthält
-            parameters[key] = value
-    return parameters
+console = Console() if HAS_RICH else None
 
 
-def load_parameter_from_file(i_key):
-    with open(settings_file, 'r') as file:
-        for line in file:
-            line = line.strip()
-            if '=' not in line or line == '':  # FIX: Leere Zeilen abfangen
-                continue
-            line_key, line_value = line.split('=', 1)  # FIX: maxsplit=1
-            if line_key == i_key:
-                return line_value
-    return 'Key not found'
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Exceptions
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class QuickArmorSwapError(Exception):
+    """Base exception for all app-specific errors."""
 
 
-def get_operating_system():
-    system = platform.system()
-    if system == 'Windows':
-        version = platform.win32_ver()
-        if version[0] == '10':
-            return 'Windows 10'
-        elif version[0] == '11':
-            return 'Windows 11'
-    elif system == 'Linux':
-        return 'Linux'
-    else:
-        raise Error('Unknown OS (Mac is not supported)')
+class SettingsError(QuickArmorSwapError):
+    """Raised when the settings file is missing or malformed."""
 
 
-def read_game_ui_scaling(i_game_path, i_game_version):
-    try:
-        config = configparser.ConfigParser(strict=False)
-        if i_game_version == 'ase':
-            file_path = i_game_path + '/ShooterGame/Saved/Config/WindowsNoEditor/GameUserSettings.ini'
-        else:
-            file_path = i_game_path + '/ShooterGame/Saved/Config/Windows/GameUserSettings.ini'
-
-        with open(file_path, 'r', encoding='utf-16') as file:
-            config.read_file(file)
-
-        section_name = '/Script/ShooterGame.ShooterGameUserSettings'
-
-        if 'UIScaling' in config[section_name]:
-            return config[section_name]['UIScaling']
-        else:
-            raise Error('ARK is not Installed')
-    except FileNotFoundError:
-        raise Error('ARK is not Installed')
+class PlatformError(QuickArmorSwapError):
+    """Raised on unsupported operating systems."""
 
 
-def read_game_resolution(i_game_path, i_game_version):
-    try:
-        config = configparser.ConfigParser(strict=False)
-        if i_game_version == 'ase':
-            file_path = i_game_path + '/ShooterGame/Saved/Config/WindowsNoEditor/GameUserSettings.ini'
-        else:
-            file_path = i_game_path + '/ShooterGame/Saved/Config/Windows/GameUserSettings.ini'
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Settings (dataclass-based, replaces loose file helpers)
+# ═══════════════════════════════════════════════════════════════════════════════
 
-        with open(file_path, 'r', encoding='utf-16') as file:
-            config.read_file(file)
+@dataclass
+class Coordinates:
+    x: int
+    y: int
 
-        section_name = '/Script/ShooterGame.ShooterGameUserSettings'
+    @classmethod
+    def from_string(cls, raw: str) -> Coordinates:
+        """Parse '420,360' → Coordinates(420, 360)."""
+        parts = [p.strip() for p in raw.split(",")]
+        if len(parts) != 2 or not all(p.lstrip("-").isdigit() for p in parts):
+            raise SettingsError(f"Invalid coordinate format: '{raw}'. Expected 'x,y' (e.g. '420,360').")
+        return cls(x=int(parts[0]), y=int(parts[1]))
 
-        return [int(config[section_name]['ResolutionSizeX']), int(config[section_name]['ResolutionSizeY'])]
-    except FileNotFoundError:
-        raise Error('ARK is not Installed')
-
-
-def get_mouse_coordinates():  # FIX: Unnötige Parameter entfernt
-    coordinates = []
-
-    fc_string = load_parameter_from_file('first_click_coordinates')
-    fc_parts = fc_string.split(',')
-    first_coordinates = [int(part) for part in fc_parts]
-
-    sc_string = load_parameter_from_file('second_click_coordinates')
-    sc_parts = sc_string.split(',')
-    second_coordinates = [int(part) for part in sc_parts]
-
-    coordinates.append(first_coordinates)
-    coordinates.append(second_coordinates)
-
-    return coordinates
+    def __str__(self) -> str:
+        return f"{self.x},{self.y}"
 
 
-def create_intro_output():
-    global coloring
-    app_name = "     QuickArmorSwap " + app_version
-    created_by = "     © 2024 by AEYCEN / 2_L_8"
+@dataclass
+class Settings:
+    """Holds every persisted user preference."""
 
-    if coloring:
-        index_app = app_name.find("QuickArmorSwap")
-        index_aeycen = created_by.find("AEYCEN")
-        index_2l8 = created_by.find("2_L_8")
+    game_version: Optional[str] = None
+    game_path: Optional[str] = None
+    hotkey: Optional[str] = None
+    deactivation_hotkey: Optional[str] = None
+    first_click: Optional[Coordinates] = None
+    second_click: Optional[Coordinates] = None
+    inventory_keybind: str = "i"
+    saved_ui_scaling: Optional[float] = None   # UIScaling at time of last calibration
 
-        app_name = (
-            f"{Fore.MAGENTA}{app_name[:index_app]}"
-            f"{app_name[index_app:index_app + len('QuickArmorSwap')]}{Style.RESET_ALL}"
-            f"{app_name[index_app + len('QuickArmorSwap'):]}"
-        )
+    # ── Persistence ──────────────────────────────────────────────────────────
 
-        created_by = (
-            f"{created_by[:index_aeycen]}{Fore.CYAN}"
-            f"{created_by[index_aeycen:index_aeycen + len('AEYCEN')]}{Style.RESET_ALL}"
-            f"{created_by[index_aeycen + len('AEYCEN'):index_2l8]}{Fore.YELLOW}"
-            f"{created_by[index_2l8:index_2l8 + len('2_L_8')]}{Style.RESET_ALL}"
-            f"{created_by[index_2l8 + len('2_L_8'):]}"
-        )
+    @classmethod
+    def load(cls, path: Path = SETTINGS_FILE) -> Settings:
+        """Read settings.txt into a Settings object."""
+        settings = cls()
+        if not path.exists():
+            return settings
 
-    print("")
-    print(app_name)
-    print(created_by)
-    print("")
-    print(f'     [OS: {get_operating_system()} / Resolution: {pyautogui.size().width}x{pyautogui.size().height}px]')
+        raw = _read_key_value_file(path)
 
+        settings.game_version = raw.get("game_version")
+        settings.game_path = raw.get("game_path")
+        settings.hotkey = raw.get("hotkey")
+        settings.deactivation_hotkey = raw.get("deactivation_hotkey")
+        settings.inventory_keybind = raw.get("inventory_keybind", "i")
 
-def create_response_output(i_hotkey):
-    global coloring
-    hotkey_input_response = "     QuickArmorSwap is now RUNNING with the hotkey '" + i_hotkey + "'"
+        if "first_click_coordinates" in raw:
+            settings.first_click = Coordinates.from_string(raw["first_click_coordinates"])
+        if "second_click_coordinates" in raw:
+            settings.second_click = Coordinates.from_string(raw["second_click_coordinates"])
+        if "saved_ui_scaling" in raw:
+            try:
+                settings.saved_ui_scaling = float(raw["saved_ui_scaling"])
+            except ValueError:
+                pass
 
-    if coloring:
-        index_running = hotkey_input_response.find("RUNNING")
-        index_hotkey = hotkey_input_response.find("'" + i_hotkey + "'")
-        hotkey_length = len(i_hotkey)
+        return settings
 
-        hotkey_input_response = (
-            f"{hotkey_input_response[:index_running]}{Fore.GREEN}"
-            f"{hotkey_input_response[index_running:index_running + len('RUNNING')]}{Style.RESET_ALL}"
-            f"{hotkey_input_response[index_running + len('RUNNING'):index_hotkey + 1]}{Fore.MAGENTA}"
-            f"{hotkey_input_response[index_hotkey + 1:index_hotkey + 1 + hotkey_length]}{Style.RESET_ALL}"
-            f"{hotkey_input_response[index_hotkey + 1 + hotkey_length:]}"
-        )
+    def save(self, path: Path = SETTINGS_FILE) -> None:
+        """Write current state back to settings.txt."""
+        pairs: dict[str, str] = {}
+        if self.game_version:
+            pairs["game_version"] = self.game_version
+        if self.game_path:
+            pairs["game_path"] = self.game_path
+        if self.hotkey:
+            pairs["hotkey"] = self.hotkey
+        if self.deactivation_hotkey:
+            pairs["deactivation_hotkey"] = self.deactivation_hotkey
+        if self.first_click:
+            pairs["first_click_coordinates"] = str(self.first_click)
+        if self.second_click:
+            pairs["second_click_coordinates"] = str(self.second_click)
+        pairs["inventory_keybind"] = self.inventory_keybind
+        if self.saved_ui_scaling is not None:
+            pairs["saved_ui_scaling"] = f"{self.saved_ui_scaling:.6f}"
 
-    print("")
-    print(hotkey_input_response)
+        lines = [f"{k}={v}\n" for k, v in pairs.items()]
+        path.write_text("".join(lines), encoding="utf-8")
 
+    # ── Validation ───────────────────────────────────────────────────────────
 
-def create_outro_output(i_deactivation_hotkey):
-    global coloring
-    exit_hint = "     > Press '" + i_deactivation_hotkey + "' to deactivate QuickArmorSwap <"
+    @property
+    def is_ready(self) -> bool:
+        return all([
+            self.game_version,
+            self.hotkey,
+            self.deactivation_hotkey,
+            self.first_click,
+            self.second_click,
+        ])
 
-    if coloring:
-        index_open_bracket = exit_hint.find(">")
-        index_close_bracket = exit_hint.find("<")
+    def needs_calibration(self, current_ui_scaling: float) -> bool:
+        """True if coordinates were never calibrated or UIScaling changed."""
+        if not self.first_click or not self.second_click:
+            return True
+        if self.saved_ui_scaling is None:
+            return True
+        return abs(self.saved_ui_scaling - current_ui_scaling) > 0.001
 
-        exit_hint = (
-            f"{exit_hint[:index_open_bracket]}{Fore.RED}"
-            f"{exit_hint[index_open_bracket:index_open_bracket + len('>')]}{Style.RESET_ALL}"
-            f"{exit_hint[index_open_bracket + len('>'):index_close_bracket]}{Fore.RED}"
-            f"{exit_hint[index_close_bracket:index_close_bracket + len('<')]}{Style.RESET_ALL}"
-            f"{exit_hint[index_close_bracket + len('<'):]}"
-        )
-
-    print(exit_hint)
-    keyboard.wait(i_deactivation_hotkey)
-
-
-
-def update_lower_set_count():
-    global set_count
-    if set_count > 0:  # FIX: Nicht unter 0 gehen
-        set_count -= 1
-    displayText('Armor sets left: ' + str(set_count))  # FIX: "Amor" -> "Armor"
-
-
-def update_upper_set_count():
-    global set_count
-    set_count += 1
-    displayText('Armor sets left: ' + str(set_count))  # FIX: "Amor" -> "Armor"
-
-
-def perform_macro():
-    global game_version
-    global inventory_keybind
-    global set_count
-
-    if set_count <= 0:  # FIX: Prüfen ob noch Sets vorhanden sind
-        displayText('No armor sets left!')
-        return
-
-    set_count -= 1
-    coordinates = get_mouse_coordinates()  # FIX: Keine unnötigen Parameter mehr
-
-    pyautogui.hotkey(inventory_keybind)
-    time.sleep(0.2)
-    pyautogui.click(x=coordinates[0][0], y=coordinates[0][1], button='right')
-    pyautogui.click(x=coordinates[1][0], y=coordinates[1][1])
-    pyautogui.hotkey('esc')
-    displayText('Armor sets left: ' + str(set_count))  # FIX: Immer anzeigen, nicht nur wenn > 0
+    def validate_coordinates(self) -> None:
+        if not self.first_click or not self.second_click:
+            raise SettingsError(
+                'Coordinates not calibrated! Run QuickArmorSwap setup to calibrate.'
+            )
 
 
-def displayText(i_text):
-    """Zeigt ein Overlay-Label für 2 Sekunden an.
-    Alle Tkinter-Operationen laufen in einem eigenen Thread,
-    damit der Hauptthread nicht blockiert wird und kein Thread-Konflikt entsteht."""
-
-    def _run_overlay():
+def _read_file_text(path: Path) -> str:
+    """Read a text file, auto-detecting common Windows encodings."""
+    for enc in ("utf-8-sig", "utf-8", "utf-16", "cp1252", "latin-1"):
         try:
-            font_size = 32
-            root = tkinter.Tk()
+            return path.read_text(encoding=enc)
+        except (UnicodeDecodeError, ValueError):
+            continue
+    return path.read_text(encoding="latin-1", errors="replace")
+
+
+def _read_key_value_file(path: Path) -> dict[str, str]:
+    data: dict[str, str] = {}
+    for line in _read_file_text(path).splitlines():
+        line = line.strip()
+        if not line or "=" not in line:
+            continue
+        key, value = line.split("=", maxsplit=1)
+        data[key.strip()] = value.strip()
+    return data
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  ARK Input.ini — inventory keybind detection
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Maps Unreal Engine key names → keyboard-library key names.
+# Only non-gamepad keys that make sense for a keyboard macro.
+_ARK_KEY_MAP: dict[str, str] = {
+    # Letters (UE uses single uppercase)
+    **{chr(c): chr(c).lower() for c in range(ord("A"), ord("Z") + 1)},
+    # Number row
+    **{f"Zero": "0", "One": "1", "Two": "2", "Three": "3", "Four": "4",
+       "Five": "5", "Six": "6", "Seven": "7", "Eight": "8", "Nine": "9"},
+    # F-keys
+    **{f"F{n}": f"f{n}" for n in range(1, 13)},
+    # Numpad
+    "NumPadZero": "num 0", "NumPadOne": "num 1", "NumPadTwo": "num 2",
+    "NumPadThree": "num 3", "NumPadFour": "num 4", "NumPadFive": "num 5",
+    "NumPadSix": "num 6", "NumPadSeven": "num 7", "NumPadEight": "num 8",
+    "NumPadNine": "num 9",
+    # Common named keys
+    "Tab": "tab", "Enter": "enter", "SpaceBar": "space", "Escape": "esc",
+    "BackSpace": "backspace", "Insert": "insert", "Delete": "delete",
+    "Home": "home", "End": "end", "PageUp": "page up", "PageDown": "page down",
+    "Left": "left", "Right": "right", "Up": "up", "Down": "down",
+    "CapsLock": "caps lock", "Slash": "/", "BackSlash": "\\",
+    "Comma": ",", "Period": ".", "Semicolon": ";", "Quote": "'",
+    "LeftBracket": "[", "RightBracket": "]", "Hyphen": "-", "Equals": "=",
+    "Tilde": "`",
+    # Modifier keys
+    "LeftShift": "left shift", "RightShift": "right shift",
+    "LeftControl": "left ctrl", "RightControl": "right ctrl",
+    "LeftAlt": "left alt", "RightAlt": "right alt",
+    # Mouse (not usable as keyboard hotkeys — will be skipped)
+    "LeftMouseButton": None, "RightMouseButton": None,
+    "MiddleMouseButton": None, "MouseScrollUp": None, "MouseScrollDown": None,
+    "ThumbMouseButton": None, "ThumbMouseButton2": None,
+}
+
+# Gamepad keys start with "Gamepad_" — always skip them.
+_GAMEPAD_PREFIX = "Gamepad_"
+
+
+def read_inventory_keybind(game_path: Path, game_version: str) -> str:
+    """
+    Read the ShowMyInventory keybind from ARK's Input.ini.
+
+    Returns a key name compatible with the ``keyboard`` library,
+    or ``"i"`` as fallback if the file/entry is not found.
+    """
+    if game_version == "ase":
+        ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "WindowsNoEditor" / "Input.ini"
+    else:
+        ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "Windows" / "Input.ini"
+
+    if not ini_path.exists():
+        return "i"
+
+    try:
+        content = _read_file_text(ini_path)
+    except Exception:
+        return "i"
+
+    # Pattern: ActionName="ShowMyInventory",Key=<KEY>,...
+    pattern = re.compile(
+        r'ActionMappings=\(ActionName="ShowMyInventory",Key=(\w+)',
+    )
+
+    for match in pattern.finditer(content):
+        ark_key = match.group(1)
+
+        # Skip gamepad bindings
+        if ark_key.startswith(_GAMEPAD_PREFIX) or ark_key == "None":
+            continue
+
+        # Try our mapping table
+        mapped = _ARK_KEY_MAP.get(ark_key)
+        if mapped is not None:
+            return mapped
+
+        # If not in map but looks like a single letter, lowercase it
+        if len(ark_key) == 1 and ark_key.isalpha():
+            return ark_key.lower()
+
+    return "i"
+
+
+def validate_game_path(raw_path: str, game_version: str) -> Optional[Path]:
+    """
+    Check that the given path is a valid ARK game folder.
+    Returns the resolved Path or None if invalid.
+    """
+    p = Path(raw_path.strip().strip('"').strip("'"))
+
+    if not p.is_dir():
+        return None
+
+    expected_folder = "ARKSurvivalEvolved" if game_version == "ase" else "Ark Survival Ascended"
+
+    # Accept both: user gives the exact folder, or a parent
+    if p.name == expected_folder:
+        return p
+    candidate = p / expected_folder
+    if candidate.is_dir():
+        return candidate
+
+    # Lenient: if ShooterGame subfolder exists, it's probably right
+    if (p / "ShooterGame").is_dir():
+        return p
+
+    return None
+
+
+def check_disable_menu_transitions(game_path: Path, game_version: str) -> None:
+    """
+    Verify that 'bDisableMenuTransitions' is set to True in GameUserSettings.ini.
+
+    The macro relies on instant menu transitions — without this setting
+    the click timings will miss their targets.
+    """
+    if game_version == "ase":
+        ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "WindowsNoEditor" / "GameUserSettings.ini"
+    else:
+        ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "Windows" / "GameUserSettings.ini"
+
+    if not ini_path.exists():
+        raise SettingsError(
+            f"GameUserSettings.ini not found at:\n"
+            f"  {ini_path}\n\n"
+            f"Make sure ARK has been launched at least once so the config files are created."
+        )
+
+    try:
+        content = _read_file_text(ini_path)
+    except Exception as exc:
+        raise SettingsError(f"Could not read GameUserSettings.ini: {exc}") from exc
+
+    # Look for the key anywhere in the file (under [/Script/ShooterGame.ShooterGameUserSettings])
+    match = re.search(r'bDisableMenuTransitions\s*=\s*(\w+)', content)
+
+    if not match or match.group(1).lower() != "true":
+        raise SettingsError(
+            "Required ARK setting not enabled!\n\n"
+            '  "Disable Menu Transitions" must be checked (set to True).\n\n'
+            "  How to fix:\n"
+            "    1. Open ARK: Survival Evolved\n"
+            '    2. Go to Options → Advanced\n'
+            '    3. Enable "Disable Menu Transitions"\n'
+            "    4. Save and restart QuickArmorSwap\n\n"
+            "  This setting is required so the inventory opens instantly,\n"
+            "  allowing the macro to click at the correct positions."
+        )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  ARK display settings & coordinate calculation
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def read_game_display_settings(game_path: Path, game_version: str) -> tuple[float, int, int]:
+    """
+    Read UIScaling and resolution from GameUserSettings.ini.
+    Returns (ui_scaling, resolution_x, resolution_y).
+    """
+    if game_version == "ase":
+        ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "WindowsNoEditor" / "GameUserSettings.ini"
+    else:
+        ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "Windows" / "GameUserSettings.ini"
+
+    if not ini_path.exists():
+        return 1.0, 1920, 1080
+
+    try:
+        content = _read_file_text(ini_path)
+    except Exception:
+        return 1.0, 1920, 1080
+
+    ui_match = re.search(r'UIScaling\s*=\s*([\d.]+)', content)
+    ui_scaling = float(ui_match.group(1)) if ui_match else 1.0
+
+    rx_match = re.search(r'ResolutionSizeX\s*=\s*(\d+)', content)
+    ry_match = re.search(r'ResolutionSizeY\s*=\s*(\d+)', content)
+    res_x = int(rx_match.group(1)) if rx_match else 1920
+    res_y = int(ry_match.group(1)) if ry_match else 1080
+
+    return ui_scaling, res_x, res_y
+
+
+# Reference resolution for the linear model
+_REF_W, _REF_H = 3840, 2160
+
+# Linear model coefficients derived from two reference points at 3840×2160:
+#   UIScaling=1.000000 → first=(320,580)  second=(330,670)
+#   UIScaling=0.710935 → first=(780,700)  second=(790,795)
+_FIRST_X  = (-1591.15, 1911.15)   # (slope, intercept)
+_FIRST_Y  = ( -415.06,  995.06)
+_SECOND_X = (-1591.15, 1921.15)
+_SECOND_Y = ( -432.56, 1102.56)
+
+
+def calculate_coordinates(
+    ui_scaling: float, res_x: int, res_y: int,
+) -> tuple[Coordinates, Coordinates]:
+    """
+    Estimate click positions for the given UIScaling and resolution.
+    Uses a linear model calibrated at 3840×2160, then scales to the
+    actual resolution.
+    """
+    def _calc(coeff: tuple[float, float], scale: float) -> int:
+        slope, intercept = coeff
+        ref_value = slope * ui_scaling + intercept
+        return max(0, round(ref_value * scale))
+
+    sx = res_x / _REF_W
+    sy = res_y / _REF_H
+
+    first  = Coordinates(x=_calc(_FIRST_X, sx),  y=_calc(_FIRST_Y, sy))
+    second = Coordinates(x=_calc(_SECOND_X, sx), y=_calc(_SECOND_Y, sy))
+
+    return first, second
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Interactive Coordinate Calibration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_CROSSHAIR_SIZE = 18
+_LABEL_OFFSET   = 26
+
+# Colors
+_C_ACTIVE_1   = "#00ff88"   # green — active first marker
+_C_INACTIVE_1 = "#005533"   # dim green
+_C_ACTIVE_2   = "#ff8800"   # orange — active second marker
+_C_INACTIVE_2 = "#553300"   # dim orange
+_C_INSTR_BG   = "#111111"   # near-black (opaque on transparent-black window)
+_C_INSTR_FG   = "#ffffff"
+
+
+def run_calibration(
+    initial_first: Coordinates,
+    initial_second: Coordinates,
+) -> Optional[tuple[Coordinates, Coordinates]]:
+    """
+    Full-screen transparent overlay with two crosshair markers.
+    Uses ``keyboard.on_press_key()`` per key for reliable global input
+    even when a fullscreen game has focus.
+    Tkinter only handles drawing — it never needs keyboard focus.
+
+    Returns the confirmed (first, second) coordinates, or None if cancelled.
+    """
+
+    sw, sh = pyautogui.size()
+
+    state: dict = {
+        "fx": initial_first.x,
+        "fy": initial_first.y,
+        "sx": initial_second.x,
+        "sy": initial_second.y,
+        "phase": 1,
+        "result": None,
+        "dirty": True,
+    }
+
+    done_event = threading.Event()
+    hooks: list = []  # track all registered hooks for cleanup
+
+    # ── Movement helpers ─────────────────────────────────────────────────
+
+    def _move(axis: str, delta: int) -> None:
+        if done_event.is_set():
+            return
+        prefix = "f" if state["phase"] == 1 else "s"
+        key = f"{prefix}{axis}"
+        step = 10 if keyboard.is_pressed("shift") else 1
+        limit = (sw - 1) if axis == "x" else (sh - 1)
+        state[key] = max(0, min(limit, state[key] + delta * step))
+        state["dirty"] = True
+
+    def _confirm(_event=None) -> None:
+        if done_event.is_set():
+            return
+        if state["phase"] == 1:
+            state["phase"] = 2
+            state["dirty"] = True
+        else:
+            state["result"] = (
+                Coordinates(state["fx"], state["fy"]),
+                Coordinates(state["sx"], state["sy"]),
+            )
+            done_event.set()
+
+    def _cancel(_event=None) -> None:
+        if done_event.is_set():
+            return
+        state["result"] = None
+        done_event.set()
+
+    # ── Register one hook per key ────────────────────────────────────────
+
+    hooks.append(keyboard.on_press_key("up",    lambda e: _move("y", -1)))
+    hooks.append(keyboard.on_press_key("down",  lambda e: _move("y",  1)))
+    hooks.append(keyboard.on_press_key("left",  lambda e: _move("x", -1)))
+    hooks.append(keyboard.on_press_key("right", lambda e: _move("x",  1)))
+    hooks.append(keyboard.on_press_key("enter", _confirm))
+    hooks.append(keyboard.on_press_key("esc",   _cancel))
+
+    # ── Tk overlay thread (drawing only) ─────────────────────────────────
+
+    root_ref: list = []
+
+    def _overlay_thread() -> None:
+        root = tk.Tk()
+        root_ref.append(root)
+        root.overrideredirect(True)
+        root.attributes("-topmost", True)
+        root.attributes("-transparentcolor", "black")
+        root.geometry(f"{sw}x{sh}+0+0")
+
+        canvas = tk.Canvas(root, width=sw, height=sh, bg="black", highlightthickness=0)
+        canvas.pack()
+
+        def _draw_crosshair(cx: int, cy: int, color: str, label: str) -> None:
+            s = _CROSSHAIR_SIZE
+            canvas.create_oval(cx - s, cy - s, cx + s, cy + s,
+                               outline=color, width=2, tags="markers")
+            canvas.create_line(cx - s - 6, cy, cx + s + 6, cy,
+                               fill=color, width=1, tags="markers")
+            canvas.create_line(cx, cy - s - 6, cx, cy + s + 6,
+                               fill=color, width=1, tags="markers")
+            canvas.create_text(cx + _LABEL_OFFSET, cy - _LABEL_OFFSET,
+                               text=label, fill=color,
+                               font=("Segoe UI", 11, "bold"), anchor="w", tags="markers")
+            canvas.create_text(cx + _LABEL_OFFSET, cy - _LABEL_OFFSET + 18,
+                               text=f"({cx}, {cy})", fill=color,
+                               font=("Segoe UI", 9), anchor="w", tags="markers")
+
+        def _draw_instructions() -> None:
+            bar_h = 52
+            canvas.create_rectangle(0, 0, sw, bar_h,
+                                    fill=_C_INSTR_BG, outline="", tags="markers")
+            if state["phase"] == 1:
+                txt = ("  QuickArmorSwap CALIBRATION  │  Step 1/2: Move the GREEN marker to the middle of the "
+                       "inventory folder  │  Arrow keys = 1 px  │  Shift+Arrow = 10 px  │  Enter = confirm  │  Esc = cancel")
+            else:
+                txt = ("  QuickArmorSwap CALIBRATION  │  Step 2/2: Move the ORANGE marker to the "
+                       "context menu entry 'Equip all items'  │  Arrow keys = 1 px  │  Shift+Arrow = 10 px  │  Enter = confirm  │  Esc = cancel")
+            canvas.create_text(16, bar_h // 2, text=txt,
+                               fill=_C_INSTR_FG, font=("Segoe UI", 11),
+                               anchor="w", tags="markers")
+
+        def redraw() -> None:
+            canvas.delete("markers")
+            _draw_instructions()
+            c1 = _C_ACTIVE_1 if state["phase"] == 1 else _C_INACTIVE_1
+            _draw_crosshair(state["fx"], state["fy"], c1, "1st click (inventory folder)")
+            c2 = _C_ACTIVE_2 if state["phase"] == 2 else _C_INACTIVE_2
+            _draw_crosshair(state["sx"], state["sy"], c2, "2nd click (context menu entry)")
+
+        def _poll() -> None:
+            if done_event.is_set():
+                root.destroy()
+                return
+            if state["dirty"]:
+                state["dirty"] = False
+                redraw()
+            root.after(30, _poll)
+
+        redraw()
+        root.after(30, _poll)
+        root.mainloop()
+
+    overlay_thread = threading.Thread(target=_overlay_thread, daemon=True)
+    overlay_thread.start()
+
+    # ── Block until user confirms or cancels ─────────────────────────────
+
+    try:
+        done_event.wait()
+    finally:
+        for h in hooks:
+            keyboard.unhook(h)
+        done_event.set()  # ensure overlay closes if it hasn't
+
+    overlay_thread.join(timeout=3)
+    return state["result"]
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Platform helpers
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def get_os_label() -> str:
+    system = platform.system()
+    if system == "Windows":
+        ver = platform.win32_ver()[0]
+        return f"Windows {ver}" if ver else "Windows"
+    if system == "Linux":
+        return "Linux"
+    raise PlatformError("Unsupported OS — currently Windows and Linux only.")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  In-Game Overlay  (transparent floating text via Tkinter)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class Overlay:
+    """
+    HUD-style text overlay rendered on a single persistent Tk thread.
+
+    One Tk root + one window is reused for every message. New calls to
+    ``show()`` replace the current text instantly (no stacking). A
+    dedicated thread owns the Tk mainloop so it can be shut down
+    cleanly — no more "Tcl_AsyncDelete: wrong thread" errors.
+    """
+
+    # ── Color presets ────────────────────────────────────────────────────────
+    COLOR_NORMAL  = "#00e5ff"   # cyan / teal
+    COLOR_WARNING = "#ffab00"   # amber
+    COLOR_DANGER  = "#ff1744"   # red
+    COLOR_SUCCESS = "#00e676"   # green
+
+    FONT_FAMILY    = "Segoe UI Black"
+    FONT_FALLBACKS = ("Segoe UI", "Arial Black", "Helvetica", "OCR A Extended")
+    FONT_SIZE      = 28
+    DISPLAY_MS     = 2200
+    FADE_STEPS     = 12
+
+    # ── Internal state (class-level, shared across all callers) ──────────
+    _queue: queue.Queue       = queue.Queue()
+    _root: Optional[tk.Tk]    = None
+    _main_label: Optional[tk.Label] = None
+    _sub_label: Optional[tk.Label]  = None
+    _thread: Optional[threading.Thread] = None
+    _ready   = threading.Event()
+    _stopped = threading.Event()   # signals when Tk is fully torn down
+    _fade_id: Optional[str]   = None
+
+    # ── Public API ───────────────────────────────────────────────────────────
+
+    @classmethod
+    def show(cls, text: str, *, color: str = COLOR_NORMAL, subtext: str = "") -> None:
+        """Fire-and-forget: display *text* for ~2 s, replacing any current overlay."""
+        cls._ensure_thread()
+        cls._queue.put(("show", text, color, subtext))
+
+    @classmethod
+    def shutdown(cls) -> None:
+        """Cleanly destroy the Tk root from its owning thread and wait."""
+        if cls._thread is not None and cls._thread.is_alive():
+            cls._queue.put(("quit",))
+            cls._stopped.wait(timeout=5)   # wait for Tcl to be fully gone
+            cls._thread.join(timeout=2)
+            cls._thread = None
+        # Drain any leftover messages
+        while not cls._queue.empty():
+            try:
+                cls._queue.get_nowait()
+            except queue.Empty:
+                break
+
+    # ── Thread lifecycle ─────────────────────────────────────────────────────
+
+    @classmethod
+    def _ensure_thread(cls) -> None:
+        if cls._thread is not None and cls._thread.is_alive():
+            return
+        cls._ready.clear()
+        cls._stopped.clear()
+        cls._thread = threading.Thread(target=cls._mainloop, daemon=True)
+        cls._thread.start()
+        cls._ready.wait(timeout=5)
+
+    @classmethod
+    def _pick_font(cls, root: tk.Tk) -> str:
+        available = set(tkfont.families(root))
+        for candidate in (cls.FONT_FAMILY, *cls.FONT_FALLBACKS):
+            if candidate in available:
+                return candidate
+        return "TkDefaultFont"
+
+    @classmethod
+    def _mainloop(cls) -> None:
+        """Runs on the dedicated overlay thread — owns all Tk objects."""
+        root = None
+        try:
+            root = tk.Tk()
+            cls._root = root
             root.overrideredirect(True)
-            root.configure(bg='black')
+            root.configure(bg="black")
+            root.attributes("-topmost", True)
+            root.attributes("-transparentcolor", "black")
+            try:
+                root.attributes("-disabled", True)
+            except tk.TclError:
+                pass
 
-            label = tkinter.Label(root, text=i_text, font=('OCR A Extended', font_size), fg='white', bg='black')
-            label.pack()
+            chosen_font = cls._pick_font(root)
 
-            # Fenster-Position berechnen (horizontal zentriert)
-            root.update_idletasks()
-            window_width = label.winfo_reqwidth()
-            screen_width = pyautogui.size().width
-            x = (screen_width - window_width) // 2
-            root.geometry(f"+{x}+{font_size}")
+            cls._main_label = tk.Label(
+                root,
+                text="",
+                font=(chosen_font, cls.FONT_SIZE, "bold"),
+                fg=cls.COLOR_NORMAL,
+                bg="black",
+                padx=24,
+                pady=4,
+            )
+            cls._main_label.pack()
 
-            root.lift()
-            root.wm_attributes("-topmost", True)
-            root.wm_attributes("-disabled", True)
-            root.wm_attributes("-transparentcolor", "black")
+            cls._sub_label = tk.Label(
+                root,
+                text="",
+                font=(chosen_font, cls.FONT_SIZE // 2),
+                fg="#888888",
+                bg="black",
+                padx=24,
+            )
+            cls._sub_label.pack()
 
-            # Nach 2 Sekunden schließen — via root.after(), bleibt im selben Thread
-            root.after(2000, root.destroy)
+            # Start hidden
+            root.withdraw()
+
+            cls._ready.set()
+
+            # Poll the queue every 50 ms from inside the Tk event loop
+            cls._poll()
             root.mainloop()
 
-        except Exception as e:
-            print(f"     Display overlay error: {e}")
+        except Exception:
+            pass
+        finally:
+            # ── CRITICAL: release all Tcl state on THIS thread ───────────
+            cls._root = None
+            cls._main_label = None
+            cls._sub_label = None
+            cls._fade_id = None
+            if root is not None:
+                try:
+                    root.destroy()
+                except Exception:
+                    pass
+                # Explicitly break Python's reference to the Tcl interpreter
+                # so it won't be GC'd later from the main thread.
+                try:
+                    root.tk.call("destroy", ".")
+                except Exception:
+                    pass
+                del root
+            cls._stopped.set()
 
-    t = threading.Thread(target=_run_overlay, daemon=True)
-    t.start()
+    # ── Queue polling (runs inside Tk thread) ────────────────────────────────
+
+    @classmethod
+    def _poll(cls) -> None:
+        try:
+            while not cls._queue.empty():
+                msg = cls._queue.get_nowait()
+
+                if msg[0] == "quit":
+                    cls._cancel_fade()
+                    cls._root.destroy()
+                    return
+
+                if msg[0] == "show":
+                    _, text, color, subtext = msg
+                    cls._display(text, color, subtext)
+
+            cls._root.after(50, cls._poll)
+        except Exception:
+            pass
+
+    # ── Display logic (always called from the Tk thread) ─────────────────────
+
+    @classmethod
+    def _display(cls, text: str, color: str, subtext: str) -> None:
+        root = cls._root
+
+        # Cancel any running fade so the new message starts fully opaque
+        cls._cancel_fade()
+        root.attributes("-alpha", 1.0)
+
+        # Update labels
+        cls._main_label.configure(text=text, fg=color)
+        cls._sub_label.configure(text=subtext)
+
+        # Reposition — center horizontally at top of screen
+        root.update_idletasks()
+        w = root.winfo_reqwidth()
+        sw = pyautogui.size().width
+        root.geometry(f"+{(sw - w) // 2}+38")
+
+        root.deiconify()
+        root.lift()
+
+        # Schedule fade-out
+        hold_ms = cls.DISPLAY_MS - (cls.FADE_STEPS * 40)
+        cls._fade_id = root.after(max(hold_ms, 400), cls._fade, 0)
+
+    @classmethod
+    def _fade(cls, step: int) -> None:
+        if step >= cls.FADE_STEPS:
+            cls._root.withdraw()
+            cls._fade_id = None
+            return
+        alpha = 1.0 - (step / cls.FADE_STEPS)
+        try:
+            cls._root.attributes("-alpha", alpha)
+        except tk.TclError:
+            return
+        cls._fade_id = cls._root.after(40, cls._fade, step + 1)
+
+    @classmethod
+    def _cancel_fade(cls) -> None:
+        if cls._fade_id is not None:
+            try:
+                cls._root.after_cancel(cls._fade_id)
+            except (tk.TclError, ValueError):
+                pass
+            cls._fade_id = None
 
 
-# - # - # - # - App process - # - # - # - #
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Terminal UI  (rich-powered pretty printing)
+# ═══════════════════════════════════════════════════════════════════════════════
 
-coloring = False
-operating_system = get_operating_system()
-if operating_system == 'Windows 11' or operating_system == 'Linux':
-    coloring = True
+def show_banner() -> None:
+    screen = pyautogui.size()
+    sys_info = f"{get_os_label()}  •  {screen.width}×{screen.height} px"
 
-create_intro_output()
+    if HAS_RICH:
+        title = Text("QuickArmorSwap", style="bold bright_cyan")
 
-if not os.path.exists(settings_file):
-    raise Error('Settings file not found! Please create a file "settings.txt" in the QuickArmorSwap folder.')
+        version = Text(f" {APP_VERSION}", style="dim")
 
-saved_parameters = load_all_parameters_from_file()
+        credit = Text("© 2024-2026 by ", style="dim")
+        credit.append("AEYCEN", style="bold cyan")
+        credit.append(" / ", style="dim")
+        credit.append("2_L_8", style="bold yellow")
 
-# COORDINATE CALC FEATURE
-if 'first_click_coordinates' not in saved_parameters or 'second_click_coordinates' not in saved_parameters:
-    raise Error('The keys "first_click_coordinates" and "second_click_coordinates" need to have saved comma separated numbers in the settings.txt file.')
+        info = Text(sys_info, style="dim italic")
 
-# ASA FEATURE
-if load_parameter_from_file('game_version') == 'asa':
-    raise Error('Unfortunately, the development of the feature for Ark: Survival Ascended is not yet complete. Please remove the content of the settings.txt file completely.')
-
-if 'game_version' not in saved_parameters or 'hotkey' not in saved_parameters:
-    print("")
-    print("     - Setting up QuickArmorSwap -")
-
-if 'game_version' not in saved_parameters:
-    while True:
-        game_version = input("     Enter your ARK Version. Survival Evolved [ase] or Survival Ascended [asa]: ")
-        if game_version.lower() in ['ase', 'asa']:
-            break
-        else:
-            print('     Invalid input. Please enter "ase" or "asa".')
-
-        if game_version == 'asa':
-            print()
-            print(
-                '     Unfortunately, the development of the feature for ASA is not yet complete. The program will now end')
-            exit(1)
-    game_version = 'ase'
-
-    input_game_version = {'game_version': game_version}
-    save_parameters_to_file(input_game_version)
-else:
-    game_version = load_parameter_from_file('game_version')
-
-if 'hotkey' not in saved_parameters:
-    hotkey = input("     Enter your preferred hotkey to execute the macro (e.g. 'l' or 'alt+l'): ")
-    input_hotkey = {'hotkey': hotkey}
-    save_parameters_to_file(input_hotkey)
-else:
-    hotkey = load_parameter_from_file('hotkey')
-
-if 'deactivation_hotkey' not in saved_parameters:
-    deactivation_hotkey = input("     Enter your preferred hotkey to deactivate the macro (e.g. '#'): ")
-    print('')
-    print('     Dont forget to adjust the coordinate values in the settings.txt file before the first use. Further instructions are on our GitHub page.')
-
-    input_deactivation_hotkey = {'deactivation_hotkey': deactivation_hotkey}
-    save_parameters_to_file(input_deactivation_hotkey)
-else:
-    deactivation_hotkey = load_parameter_from_file('deactivation_hotkey')
-
-# - - - - - - - - - Reading game files  - - - - - - - - - - - #
-inventory_keybind = 'i'
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-
-print('')
-while True:
-    set_count = input("     Enter your count of Armor sets (e.g. '5' or '10'): ")  # FIX: "Amor" -> "Armor"
-    if set_count.isdigit() and int(set_count) > 0:  # FIX: Auch 0 abfangen
-        set_count = int(set_count)
-        break
+        body = Text.assemble(title, "\n", version, "\n", credit, "\n\n", info, justify="center")
+        panel = Panel(
+            body,
+            box=box.DOUBLE_EDGE,
+            border_style="bright_magenta",
+            padding=(1, 4),
+        )
+        console.print()
+        console.print(panel, justify="center")
     else:
-        print('     Invalid input. Please enter a positive integer number.')
+        print()
+        print(f"  ╔══════════════════════════════════════════╗")
+        print(f"  ║              QuickArmorSwap              ║")
+        print(f"  ║             {APP_VERSION:<16}            ║")
+        print(f"  ║       © 2024-2026 by AEYCEN / 2_L_8      ║")
+        print(f"  ║                                          ║")
+        print(f"  ║        {sys_info:<34}║")
+        print(f"  ╚══════════════════════════════════════════╝")
+        print()
 
-try:
-    keyboard.add_hotkey(hotkey, perform_macro)
-    keyboard.add_hotkey('alt+1', update_lower_set_count)
-    keyboard.add_hotkey('alt+2', update_upper_set_count)
-except Exception as e:  # FIX: Exception statt Error, um auch keyboard-Fehlöiier abzufangen
-    print("ERROR:", e)
 
-create_response_output(hotkey)
+def show_status_table(settings: Settings, set_count: int) -> None:
+    """Display a compact overview of all active keybinds and settings."""
+    ui_str = f"{settings.saved_ui_scaling:.4f}" if settings.saved_ui_scaling else "—"
 
-create_outro_output(deactivation_hotkey)
+    if not HAS_RICH:
+        print(f"  Game path:          {settings.game_path}")
+        print(f"  UIScaling:          {ui_str}")
+        print(f"  Macro hotkey:       {settings.hotkey}")
+        print(f"  Deactivation:       {settings.deactivation_hotkey}")
+        print(f"  Inventory key:      {settings.inventory_keybind}")
+        print(f"  Armor sets:         {set_count}")
+        print(f"  1st click:          {settings.first_click}")
+        print(f"  2nd click:          {settings.second_click}")
+        print(f"  Adjust count:       Alt+1 (-)  /  Alt+2 (+)")
+        return
+
+    table = Table(
+        box=box.SIMPLE_HEAVY,
+        show_header=False,
+        border_style="bright_black",
+        padding=(0, 2),
+    )
+    table.add_column("Key", style="dim", min_width=20)
+    table.add_column("Value", style="bold")
+
+    # Truncate long path for display
+    display_path = settings.game_path or "—"
+    if len(display_path) > 50:
+        display_path = "…" + display_path[-49:]
+
+    table.add_row("Game path", f"[dim]{display_path}[/]")
+    table.add_row("UIScaling", f"[dim]{ui_str}[/]")
+    table.add_row("Macro hotkey", f"[bright_magenta]{settings.hotkey}[/]")
+    table.add_row("Deactivation", f"[red]{settings.deactivation_hotkey}[/]")
+    table.add_row("Inventory key", f"[bright_cyan]{settings.inventory_keybind}[/]")
+    table.add_row("Armor sets", f"[bright_green]{set_count}[/]")
+    table.add_row("1st click coords", f"[bright_green]{settings.first_click}[/]")
+    table.add_row("2nd click coords", f"[yellow]{settings.second_click}[/]")
+    table.add_row("Adjust count", "[dim]Alt+1[/] (−)  /  [dim]Alt+2[/] (+)")
+
+    console.print()
+    console.print(table)
+
+
+def show_running(hotkey: str) -> None:
+    if HAS_RICH:
+        msg = Text()
+        msg.append(" ● ", style="bold bright_green")
+        msg.append("RUNNING", style="bold bright_green")
+        msg.append("  —  press ", style="dim")
+        msg.append(hotkey, style="bold bright_magenta")
+        msg.append(" to swap armor", style="dim")
+        console.print(msg)
+    else:
+        print(f"  ● RUNNING — press '{hotkey}' to swap armor")
+
+
+def show_exit_hint(deactivation_hotkey: str) -> None:
+    if HAS_RICH:
+        msg = Text()
+        msg.append("  Press ", style="dim")
+        msg.append(deactivation_hotkey, style="bold red")
+        msg.append(" to stop QuickArmorSwap.\n", style="dim")
+        console.print(msg)
+    else:
+        print(f"  Press '{deactivation_hotkey}' to stop QuickArmorSwap.\n")
+
+
+def prompt_choice(label: str, choices: list[str]) -> str:
+    """Let the user pick from a list. Returns the chosen value."""
+    if HAS_RICH:
+        return Prompt.ask(f"  {label}", choices=choices, default=choices[0])
+    while True:
+        raw = input(f"  {label} [{'/'.join(choices)}]: ").strip().lower()
+        if raw in choices:
+            return raw
+        print(f"  Invalid — choose one of: {', '.join(choices)}")
+
+
+def prompt_text(label: str, default: str = "") -> str:
+    if HAS_RICH:
+        return Prompt.ask(f"  {label}", default=default or None) or default
+    raw = input(f"  {label}: ").strip()
+    return raw or default
+
+
+def prompt_int(label: str, *, minimum: int = 1) -> int:
+    if HAS_RICH:
+        while True:
+            val = IntPrompt.ask(f"  {label}")
+            if val >= minimum:
+                return val
+            console.print(f"  [red]Please enter a number ≥ {minimum}.[/]")
+    while True:
+        raw = input(f"  {label}: ").strip()
+        if raw.isdigit() and int(raw) >= minimum:
+            return int(raw)
+        print(f"  Invalid — enter a whole number ≥ {minimum}.")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Macro Logic
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@dataclass
+class MacroState:
+    """Mutable runtime state shared across hotkey callbacks."""
+
+    settings: Settings
+    set_count: int = 0
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+
+    # ── Hotkey callbacks ─────────────────────────────────────────────────────
+
+    def perform_swap(self) -> None:
+        with self._lock:
+            if self.set_count <= 0:
+                Overlay.show("NO SETS LEFT", color=Overlay.COLOR_DANGER)
+                return
+
+            self.set_count -= 1
+            remaining = self.set_count
+
+        s = self.settings
+
+        pyautogui.hotkey(s.inventory_keybind)
+        time.sleep(0.2)
+        pyautogui.click(x=s.first_click.x, y=s.first_click.y, button="right")
+        pyautogui.click(x=s.second_click.x, y=s.second_click.y)
+        pyautogui.hotkey("esc")
+
+        self._show_count(remaining)
+
+    def decrement_count(self) -> None:
+        with self._lock:
+            if self.set_count > 0:
+                self.set_count -= 1
+            count = self.set_count
+        self._show_count(count)
+
+    def increment_count(self) -> None:
+        with self._lock:
+            self.set_count += 1
+            count = self.set_count
+        self._show_count(count)
+
+    @staticmethod
+    def _show_count(count: int) -> None:
+        if count == 0:
+            Overlay.show("0 sets left", color=Overlay.COLOR_DANGER, subtext="Restock!")
+        elif count <= 2:
+            Overlay.show(f"{count} set{'s' if count != 1 else ''} left", color=Overlay.COLOR_WARNING)
+        else:
+            Overlay.show(f"{count} sets left", color=Overlay.COLOR_NORMAL)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Setup Wizard  (first-run interactive configuration)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def run_setup(settings: Settings) -> Settings:
+    """Walk the user through missing settings. Returns the updated object."""
+    needs_setup = (
+        not settings.game_version
+        or not settings.game_path
+        or not settings.hotkey
+        or not settings.deactivation_hotkey
+    )
+
+    if needs_setup:
+        if HAS_RICH:
+            console.print()
+            console.print(
+                Panel(
+                    "[bold]First-time setup[/]\nAnswer a few questions to get started.",
+                    border_style="bright_cyan",
+                    box=box.ROUNDED,
+                    padding=(1, 3),
+                ),
+                justify="center",
+            )
+        else:
+            print("\n  ── First-time setup ──\n")
+
+    # Game version
+    if not settings.game_version:
+        version = prompt_choice(
+            "ARK version",
+            choices=["ase", "asa"],
+        )
+        if version == "asa":
+            msg = "ASA support is still in development. Defaulting to ASE for now."
+            if HAS_RICH:
+                console.print(f"  [yellow]{msg}[/]")
+            else:
+                print(f"  {msg}")
+            version = "ase"
+        settings.game_version = version
+
+    # Game path
+    if not settings.game_path:
+        if settings.game_version == "ase":
+            folder_name = "ARKSurvivalEvolved"
+        else:
+            folder_name = "Ark Survival Ascended"
+
+        if HAS_RICH:
+            console.print(f'  Enter the full path to your [bold]"{folder_name}"[/] game folder.')
+            console.print(f'  [dim]Example: C:\\Program Files (x86)\\Steam\\steamapps\\common\\{folder_name}[/]')
+        else:
+            print(f'  Enter the full path to your "{folder_name}" game folder.')
+            print(f'  Example: C:\\Program Files (x86)\\Steam\\steamapps\\common\\{folder_name}')
+
+        while True:
+            raw = prompt_text("Game folder path")
+            validated = validate_game_path(raw, settings.game_version)
+            if validated is not None:
+                settings.game_path = str(validated)
+                break
+            if HAS_RICH:
+                console.print(f'  [red]Folder not found or invalid.[/] Make sure the path ends with "{folder_name}" and the folder exists.')
+            else:
+                print(f'  Folder not found or invalid. Make sure the path ends with "{folder_name}" and the folder exists.')
+
+        # Auto-detect inventory keybind from Input.ini
+        detected_key = read_inventory_keybind(Path(settings.game_path), settings.game_version)
+        settings.inventory_keybind = detected_key
+
+        if HAS_RICH:
+            if detected_key == "i":
+                console.print(f'  [dim]Inventory keybind:[/] [bright_cyan]{detected_key}[/] [dim](default — no custom binding found)[/]')
+            else:
+                console.print(f'  [dim]Inventory keybind:[/] [bright_cyan]{detected_key}[/] [green]✓ detected from Input.ini[/]')
+        else:
+            if detected_key == "i":
+                print(f'  Inventory keybind: {detected_key} (default — no custom binding found)')
+            else:
+                print(f'  Inventory keybind: {detected_key} (detected from Input.ini)')
+
+    # If path exists but keybind was never read (e.g. old settings file), re-detect
+    elif settings.inventory_keybind == "i" and settings.game_path:
+        detected_key = read_inventory_keybind(Path(settings.game_path), settings.game_version)
+        if detected_key != "i":
+            settings.inventory_keybind = detected_key
+
+    # Verify "Disable Menu Transitions" is enabled in ARK settings
+    if settings.game_path:
+        check_disable_menu_transitions(Path(settings.game_path), settings.game_version)
+
+    # Hotkey
+    if not settings.hotkey:
+        settings.hotkey = prompt_text("Macro hotkey (e.g. '+' or 'alt+l')", default="+")
+
+    # Deactivation hotkey
+    if not settings.deactivation_hotkey:
+        settings.deactivation_hotkey = prompt_text("Stop hotkey (e.g. '#' or 'esc')", default="#")
+
+    # ── Coordinate calibration ───────────────────────────────────────────────
+    if settings.game_path:
+        ui_scaling, res_x, res_y = read_game_display_settings(
+            Path(settings.game_path), settings.game_version,
+        )
+
+        if settings.needs_calibration(ui_scaling):
+            # Explain why
+            if settings.saved_ui_scaling is not None and settings.first_click:
+                reason = (
+                    f"UIScaling changed ({settings.saved_ui_scaling:.4f} → {ui_scaling:.4f}). "
+                    "Click positions need to be re-calibrated."
+                )
+            else:
+                reason = "Click positions have not been calibrated yet."
+
+            if HAS_RICH:
+                console.print()
+                console.print(
+                    Panel(
+                        f"[yellow bold]⚠  Calibration needed[/]\n\n"
+                        f"  {reason}\n\n"
+                        f"  Detected:  [dim]Resolution[/] [bold]{res_x}×{res_y}[/]  "
+                        f"│  [dim]UIScaling[/] [bold]{ui_scaling:.4f}[/]\n\n"
+                        f"  An overlay with two crosshair markers will appear.\n"
+                        f"  Open ARK with your [bold]inventory visible[/], then position each marker:\n\n"
+                        f"    [bright_green]GREEN[/]  marker → Inventory folder (right-click target)\n"
+                        f"    [yellow]ORANGE[/] marker → Context menu entry 'equip all items'\n\n"
+                        f"  Controls:\n"
+                        f"    [dim]Arrow keys[/]         move 1 px\n"
+                        f"    [dim]Shift + Arrow keys[/] move 10 px\n"
+                        f"    [dim]Enter[/]              confirm position\n"
+                        f"    [dim]Esc[/]                cancel",
+                        border_style="yellow",
+                        box=box.ROUNDED,
+                        padding=(1, 3),
+                    ),
+                )
+                console.print()
+                console.print("  [dim]Press[/] [bold]Enter[/] [dim]to start calibration (works in-game too)…[/]")
+            else:
+                print(f"\n  ⚠  Calibration needed: {reason}")
+                print(f"     Resolution: {res_x}×{res_y}  |  UIScaling: {ui_scaling:.4f}")
+                print("     Open ARK with inventory visible, then position the markers.")
+                print("     Arrow keys = 1px, Shift+Arrows = 10px, Enter = confirm, Esc = cancel")
+                print("\n  Press Enter to start calibration (works in-game too)…")
+
+            keyboard.wait("enter")  # global hook — works even when game has focus
+            time.sleep(0.15)        # small delay so the Enter release doesn't bleed
+
+            # Calculate starting positions from the linear model
+            est_first, est_second = calculate_coordinates(ui_scaling, res_x, res_y)
+
+            if HAS_RICH:
+                console.print(
+                    f"  [dim]Estimated positions:[/]  "
+                    f"1st [bright_green]({est_first.x}, {est_first.y})[/]  "
+                    f"2nd [yellow]({est_second.x}, {est_second.y})[/]"
+                )
+
+            result = run_calibration(est_first, est_second)
+
+            if result is None:
+                raise QuickArmorSwapError("Calibration cancelled. Run the program again to retry.")
+
+            settings.first_click, settings.second_click = result
+            settings.saved_ui_scaling = ui_scaling
+
+            if HAS_RICH:
+                console.print(
+                    f"\n  [green]✓ Calibrated![/]  "
+                    f"1st [bright_green]({settings.first_click.x}, {settings.first_click.y})[/]  "
+                    f"2nd [yellow]({settings.second_click.x}, {settings.second_click.y})[/]"
+                )
+            else:
+                print(f"  ✓ Calibrated!  1st ({settings.first_click})  2nd ({settings.second_click})")
+
+    settings.save()
+    return settings
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Main
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def main() -> None:
+    # ── Banner ───────────────────────────────────────────────────────────────
+    show_banner()
+
+    # ── Load / create settings ───────────────────────────────────────────────
+    if not SETTINGS_FILE.exists():
+        SETTINGS_FILE.touch()
+
+    settings = Settings.load()
+
+    # ASA guard
+    if settings.game_version == "asa":
+        raise QuickArmorSwapError(
+            "ASA support is still in development. "
+            "Change game_version to 'ase' in settings.txt."
+        )
+
+    # Interactive setup for anything missing
+    settings = run_setup(settings)
+
+    # Validate coordinates
+    settings.validate_coordinates()
+
+    # ── Armor set count ──────────────────────────────────────────────────────
+    set_count = prompt_int("How many armor sets do you have?", minimum=1)
+
+    # ── Build state & register hotkeys ───────────────────────────────────────
+    state = MacroState(settings=settings, set_count=set_count)
+
+    try:
+        keyboard.add_hotkey(settings.hotkey, state.perform_swap)
+        keyboard.add_hotkey("alt+1", state.decrement_count)
+        keyboard.add_hotkey("alt+2", state.increment_count)
+    except Exception as exc:
+        raise QuickArmorSwapError(f"Failed to register hotkeys: {exc}") from exc
+
+    # ── Running ──────────────────────────────────────────────────────────────
+    show_status_table(settings, set_count)
+    show_running(settings.hotkey)
+    show_exit_hint(settings.deactivation_hotkey)
+
+    # Block until deactivation hotkey
+    keyboard.wait(settings.deactivation_hotkey)
+
+    Overlay.shutdown()
+
+    if HAS_RICH:
+        console.print("  [dim]QuickArmorSwap stopped. GG![/]\n")
+    else:
+        print("  QuickArmorSwap stopped. GG!\n")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    _exit_code = 0
+    try:
+        main()
+    except (QuickArmorSwapError, SettingsError, PlatformError) as exc:
+        Overlay.shutdown()
+        if HAS_RICH:
+            console.print(f"\n  [bold red]Error:[/] {exc}\n")
+        else:
+            print(f"\n  Error: {exc}\n")
+        _exit_code = 1
+    except KeyboardInterrupt:
+        Overlay.shutdown()
+        if HAS_RICH:
+            console.print("\n  [dim]Interrupted. Bye![/]\n")
+        else:
+            print("\n  Interrupted. Bye!\n")
+
+    # os._exit() skips Python's finalization which triggers
+    # "Tcl_AsyncDelete: async handler deleted by the wrong thread"
+    # on some Python/Tcl combinations. All our cleanup (Overlay.shutdown,
+    # settings.save, keyboard.unhook) is already done at this point.
+    os._exit(_exit_code)

@@ -9,7 +9,7 @@
         >
     </picture>
     <br>
-    <b style="font-size: 16px">© 2024 by AEYCEN / 2_L_8</b>
+    <b style="font-size: 16px">© 2024-2026 by AEYCEN / 2_L_8</b>
     <br>
     Exploit the full potential and take the advantage.
     <br>
@@ -17,178 +17,334 @@
 
 ---
 
-<p style="font-size: 17px">Instant player armor swap macro for Ark: Survival Evolved and Ark: Survival Ascended.</p>
+<p style="font-size: 17px">Instant player armor swap macro for Ark: Survival Evolved.</p>
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/ReVanced/revanced-patches/release.yml)
 ![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)
 
+> NOTE: Ark: Survival Ascended is not supported yet
 
 ## 💪🏼 Features
 
-Some of the features the macro provides are:
+* ⚡ **Instant armor swap in ~0.5 seconds** — Press your configured hotkey and QuickArmorSwap will open your inventory, right-click the armor folder, and equip a fresh set — all within half a second
+* ⌨️ **Fully customizable hotkeys** — Choose any key or key combination for both the macro trigger and the deactivation key
+* 🔢 **On-screen armor set counter** — A color-coded HUD overlay shows how many sets remain (cyan → amber → red) with a smooth fade-out animation
+* 🔍 **Automatic game detection** — Reads your ARK installation folder to auto-detect your inventory keybind, UI scaling, resolution, and required settings
+* 🎯 **Guided coordinate calibration** — An interactive overlay lets you position two crosshair markers directly on the correct inventory slots.
+* 📐 **UIScaling change detection** — If you change your in-game UI scaling, the calibration wizard automatically re-triggers on next launch
+* 🪶 **Lightweight** — Single Python script, minimal dependencies, almost no storage footprint
 
-* ⚡ **In-game armor swap in just 0.5 seconds**: One pressing your configured macro hotkey, all the armor pieces currently worn by the player will be swapped with a new set prepared in the inventory within half a second
-* ⌨️ **Customizable hotkey**: After launching the application, you can define your own key or key combination for the hotkey to activate the macro
-<!---* ✅ **Automatic settings recognition**: Automatically detects the in-game settings set by the user and screen size and adjusts the macro accordingly--->
-* 🔢 **Armor set counter**: Displays on-screen a counter to let you know how many armor sets you have left for change
-* 🪶 **Lightweight application**: The application is very lightweight and takes up almost no storage space
+
+## 📋 Requirements
+
+* **Windows 10 or Windows 11**
+* **[Python 3.10+](https://www.python.org/downloads/)** — Make sure to check **"Tcl/Tk and IDLE"** during installation (it is checked by default)
+* **ARK: Survival Evolved** — Must be installed and launched at least once so the config files exist
 
 
 ## 🛠️ Installation
 
-QuickArmorSwap does require [Python](https://www.python.org/downloads/) on the machine in order to run. Make sure that the `Tcl/Tk and IDLE` option is enabled during installation.
+### Step 1 — Download and extract
 
-After downloading the QuickArmorSwap .zip file from GitHub, extract the files and copy the root folder to a desired location (e.g. Desktop).
+Download the latest QuickArmorSwap `.zip` file from GitHub. Extract it and copy the folder to a location of your choice (e.g. your Desktop).
 
-The following instructions are for Windows 10 & 11. If you use Linux, look at the [Installation guide for Linux](#-installation-linux)
+### Step 2 — Open a Command Prompt in the folder
 
-<a name="installation"></a>
+Open the QuickArmorSwap folder in File Explorer. Click the address bar at the top, type `cmd`, and press Enter. A Command Prompt window will open, already set to the correct folder.
 
-### 🪟 Installation on Windows 11
+<!-- 📸 SCREENSHOT: File Explorer address bar with "cmd" typed in, and the resulting CMD window -->
 
-After that, right-click the folder and select `Open in Terminal`. 
-Then, try creating the virtual environment with the following command. 
+### Step 3 — Create a virtual environment
 
-    py -3 -m venv venv
+Run the following command to create an isolated Python environment:
 
-After executing the last command you shouldn't get a response. Now you can activate the virtual environment with the following command:
+```
+py -3 -m venv venv
+```
 
-    venv\Scripts\activate
+You should not see any output — that means it worked.
 
-If it fails because of restricting Windows policies, you may activate in the Windows-Settings under `System > For developers` the slider `Change execution policy` at the bottom of the page, like shown in the screenshot below:
+### Step 4 — Activate the virtual environment
 
-![Win11PowerShellSlider](img/win11settings_powerShellSlider.png)
+```
+venv\Scripts\activate
+```
 
-If Windows asks you if you want to execute this script from a non-certified publisher, with the options to answer with `E`,`N`,`M` or `A`, enter `A` to allow the execution and not get asked about this again.
+You should see a `(venv)` prefix appear before the command prompt.
 
-A green command line prefix saying `(venv)` should appear. If so, install all the required dependencies:
+<!-- 📸 SCREENSHOT: CMD window showing (venv) prefix -->
 
-    pip install -r requirements.txt
+### Step 5 — Install dependencies
 
-### 🔟 Installation on Windows 10
+With the virtual environment active (you see `(venv)` in your prompt), run:
 
-After extracting the files, go with the file explorer in the extracted QuickArmorSwap folder and click and copy its path from the Explorer address bar.
-After copying it, right-click the Windows icon in the taskbar and select `PowerShell`.
-Then, enter `cd` with a space and paste the copied folder path.
+```
+pip install -r requirements.txt
+```
 
-Now try creating the virtual environment with the following command:
-
-    py -3 -m venv venv
-
-After executing the last command you shouldn't get a response. Now you can activate the virtual environment with the following command:
-
-    venv\Scripts\activate
-
-If it fails because of restricting Windows policies, you may activate in the Windows-Settings under `Developer settings` the checkbox `Change execution policy` at the bottom of the page, like shown in the screenshot below. Don't forget to click the 'Apply' button:
-
-![Win10PowerShellCheckbox](img/win10settings_powerShellCheckbox.png)
-
-> ℹ️ If you want to deactivate this setting again at some point, you have to click on "Show settings" and execute the command `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Restricted` and confirm with `y`.
-
-A green command line prefix saying `(venv)` should appear. If so, install all the required dependencies:
-
-    pip install -r requirements.txt
-
-## 🚀 Usage
-
-### 🦖 In-Game preparations
-<a name="in-game-preparations"></a>
-
-1. The game needs to run in windowed or windowed full-screen mode.
-
-2. In order for QuickArmorSwap to be able to change the armor, a folder with any name must be created in the player's inventory (however, "Armor" is recommended). 
-
-3. For the following step, it is recommended to activate the folder view in the inventory, the button for switching is located in the upper right corner of the inventory next to the "Toggle tooltip" button.
-
-4. Either one or more complete armor sets of any type (flak, chitin, etc.) must be moved into the folder.
-
-QuickArmorSwap always replaces exactly one entire armor set.
-The more sets there are in the folder, the more often the macro can be used to replace the set.
+Wait for the installation to complete. You're ready to go.
 
 
-### ♻️ Launching QuickArmorSwap
+## 🦖 In-Game Preparations
 
-To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like described in the [installation guide](#-installation) and always activate the environment with `venv\Scripts\activate` before you run the application with the following command:
+Before using QuickArmorSwap, you need to set up your ARK inventory:
 
-    py run.py
+### 1. Set windowed mode
 
-> ℹ️ If you want to stop the running environment (venv) after using the application, just type `deactivate`.
+The game **must** run in **Windowed** or **Windowed Fullscreen** mode. Native fullscreen is not supported and will cause the screen to turn black when the overlay appears.
+
+<!-- 📸 SCREENSHOT: ARK display settings showing windowed/windowed fullscreen option -->
+
+### 2. Enable "Disable Menu Transitions"
+
+This is **required**. Without it, the inventory animation delay will cause the macro to click in the wrong places.
+
+1. Open ARK
+2. Go to **Options → Advanced**
+3. Check **"Disable Menu Transitions"**
+4. Click **Apply** and **Save**
+
+<!-- 📸 SCREENSHOT: ARK advanced settings with "Disable Menu Transitions" checked -->
+
+> QuickArmorSwap checks this setting automatically on launch and will tell you if it's not enabled.
+
+### 3. Create an armor folder in your inventory
+
+1. Open your inventory
+2. Create a new folder (the name doesn't matter, but "Armor" is recommended)
+3. It is recommended to enable **folder view** in the inventory — the toggle button is in the upper-right corner of the inventory, next to the "Toggle tooltip" button
+
+<!-- 📸 SCREENSHOT: ARK inventory with folder view enabled and an "Armor" folder visible -->
+
+### 4. Fill the folder with armor sets
+
+Move one or more **complete** armor sets (helmet, chest, gloves, legs, boots) of any type into the folder. Each set equals one macro use. The more sets you have, the more often you can swap before needing to restock.
+
+<!-- 📸 SCREENSHOT: Inside the armor folder showing multiple complete armor sets -->
 
 
-### ✨ Using QuickArmorSwap
-<a name="usage"></a>
+## 🚀 Launching QuickArmorSwap
 
-#### 🖥️ In the terminal (first time use only)
+Every time you want to use QuickArmorSwap:
 
-When launching QuickArmorSwap for the first time, you need to define some set up values:
-<!---1. **Your Ark version**: Enter either `ase` for Ark: Survival Evolved or `asa` for Ark: Survival Ascended--->
-<!---2. **Your path to the Ark game installation folder**: Enter the full path to the `ARKSurvivalEvolved` or `Ark Survival Ascended` folder, like e.g.: `C:\Programs\Steam\steamapps\common\ARKSurvivalEvolved`. To get the path of this folder easily, find it in the file explorer, right-click it and select `Copy as path`. Then paste it in the console, *<ins>remove the quotation marks</ins>* and hit enter.--->
-- **Your preferred hotkey to execute the macro**: Enter the hotkey you would like to define to execute the macro with. You can define both individual keys on the keyboard and key combinations. In the latter case, a `+` must be added to separate the keys for input.
-- **Your preferred hotkey to deactivate the macro**: Enter the hotkey you would like to define to deactivate the macro with. It works the same as in the previous prompt.
+1. Open a terminal in the QuickArmorSwap folder (see [Installation Step 2](#step-2--open-a-terminal-in-the-folder))
+2. Activate the virtual environment:
+   ```
+   venv\Scripts\activate
+   ```
+3. Run the application:
+   ```
+   py run.py
+   ```
 
-> Examples:
-> 
-> Define the `L` key as a hotkey -> Enter: `l`
-> 
-> Define the key combination `ALT+L` as a hotkey -> Enter: `alt+l`
-
-Once the hotkeys have been successfully defined, the application confirms that it is active and waits to be executed with the defined execution hotkey.
-The next time you launch QuickArmorSwap, you can instantly use it without entering any values in the console.
-
-> ℹ️ To deactivate the application and thus the macro, press your defined deactivation hotkey once.
+> To stop the virtual environment after you're done, type `deactivate`.
 
 
-#### 🦖 In-game
+## ✨ First-Time Setup
 
-Once QuickArmorSwap has been successfully started, go into the game and into an active session (single player or multiplayer).
-Don't change the ui scaling or the keybind to open the inventory while QuickArmorSwap is running.
+When you launch QuickArmorSwap for the first time, a guided setup wizard walks you through the configuration. All your settings are saved in `settings.txt` and remembered for future launches.
 
-> ❗ **Important: Because the feature of the automatic mouseclick coordinate calculation is not implemented yet, you need to adjust the values "first_click_coordinates" and "second_click_coordinates" in the settings.txt file to your fitting.**
-> 
-> For that, you need to press the hotkey in-game and look where the mouse clicks happen.
-> The first click needs to be on the created armor folder in the inventory.
-> The second click needs to be a few pixels lower on the selection for armor swap in the dropdown menu.
-> You have to look very closely, the macro is performing these action very quick.
-> - If the clicks are too far right, you have to reduce the value of the numbers *in front of* the commas by roughly the same factor.
-> - If they are too far up, you need to reduce the value of the numbers *behind* the commas by roughly the same factor.
+<!-- 📸 SCREENSHOT: Terminal showing the QuickArmorSwap banner and first-time setup panel -->
 
-If you did the inventory preparations described in [In-Game preparations](#-in-game-preparations) you can now hit your hotkey and enjoy the magic.
+### 1. ARK version
 
-> ❕ As soon as the macro has been started, there must be no strong mouse movement during the process, otherwise the macro cannot be executed correctly.
+You'll be asked which ARK version you're using. Currently only **ASE** (Ark: Survival Evolved) is fully supported. Type `ase` and press Enter.
 
-After activating the macro, you can see at the top of the screen for 2 seconds how many armor sets are remaining for swapping.
-Once you have swapped all sets and refilled the folder, you don't have to restart QuickArmorSwap, just press `ALT+2` as many times as you have added sets back into the folder.
-If you have pressed `ALT+2` one too many times, you can use `ALT+1` to reduce the number by one.
+### 2. Game folder path
+
+Enter the **full path** to your `ARKSurvivalEvolved` game folder. This is typically something like:
+
+```
+C:\Program Files (x86)\Steam\steamapps\common\ARKSurvivalEvolved
+```
+
+**How to find this path on Steam:**
+1. Open Steam
+2. Right-click **ARK: Survival Evolved** in your library
+3. Select **Manage → Browse local files**
+4. Copy the path from the File Explorer address bar
+
+<!-- 📸 SCREENSHOT: Steam "Browse local files" option and the resulting Explorer window with the path highlighted -->
+
+> QuickArmorSwap uses this path to automatically detect your **inventory keybind** from `Input.ini`. If you use a custom key to open your inventory (e.g. Tab instead of I), it will be detected and used. If the file isn't found, the default key `I` is used.
+
+### 3. Macro hotkey
+
+Enter the key or key combination you want to use to trigger the armor swap. Examples:
+
+| Input          | Meaning                     |
+|----------------|-----------------------------|
+| `l`            | Press the L key             |
+| `+`            | Press the + key             |
+| `alt+l`        | Hold Alt and press L        |
+| `ctrl+shift+l` | Hold Ctrl+Shift and press L |
+
+Choose a key that doesn't conflict with any ARK keybinds.
+
+### 4. Deactivation hotkey
+
+Enter the key you want to use to stop QuickArmorSwap. For example `#` or `esc`. This is the key you press when you're done playing and want to shut down the macro, it works in-game too.
+
+### 5. Coordinate calibration
+
+This is the most important step. QuickArmorSwap needs to know exactly where on your screen the armor folder and the equip button are located.
+
+An overlay with **two crosshair markers** will appear on top of your screen:
+
+| Marker | Color | What to place it on |
+|--------|-------|---------------------|
+| **1st marker** | 🟢 Green | The **armor folder** in your inventory (right-click target) |
+| **2nd marker** | 🟠 Orange | The **"Equip Items" option** in the dropdown menu that appears after right-clicking the folder |
+
+<!-- 📸 SCREENSHOT: Calibration overlay showing both crosshair markers positioned on the inventory -->
+
+**Controls during calibration** (these work globally — even when ARK has focus):
+
+| Key | Action |
+|-----|--------|
+| `Arrow keys` | Move the active marker by 1 pixel |
+| `Shift + Arrow keys` | Move the active marker by 10 pixels |
+| `Enter` | Confirm the current marker position |
+| `Esc` | Cancel calibration |
+
+**How to calibrate:**
+
+1. When asked "Press Enter to start calibration", open ARK and go into a session
+2. Open your inventory so the armor folder is visible
+3. Press **Enter** (works even while ARK has focus)
+4. Position the **green marker** directly on your armor folder and press **Enter**
+5. Right-click the folder so the dropdown menu appears
+6. Position the **orange marker** on the "Equip Items" option and press **Enter**
+7. Done! The coordinates are saved automatically
+
+> **Tip:** Use `Shift + Arrow keys` for big adjustments, then fine-tune with regular arrow keys.
+
+### 6. Armor set count
+
+Enter how many armor sets are currently in your folder. This number is shown on the in-game overlay and decremented each time you use the macro.
+
+After this, QuickArmorSwap is fully configured and running:
+
+<!-- 📸 SCREENSHOT: Terminal showing the status table with all settings, the green "RUNNING" indicator, and the exit hint -->
+
+
+## 🎮 Using QuickArmorSwap In-Game
+
+Once you see **● RUNNING** in the terminal, the macro is active. Switch to ARK and play.
+
+### Swapping armor
+
+Press your **macro hotkey**. QuickArmorSwap will:
+
+1. Open your inventory (using your detected keybind)
+2. Right-click the armor folder
+3. Click the equip option
+4. Close the inventory
+
+All of this happens within roughly 0.5 seconds. A HUD overlay at the top of the screen briefly shows how many sets you have left.
+
+<!-- 📸 SCREENSHOT: In-game HUD overlay showing "4 sets left" in cyan -->
+
+> **⚠️ Important:** Do not move your mouse while the macro is running. The process is very fast, but any strong mouse movement during the ~0.5 seconds will cause misclicks.
+
+### Armor set counter
+
+The overlay changes color to indicate urgency:
+
+| Color | Meaning |
+|-------|---------|
+| 🔵 Cyan | Normal — plenty of sets left |
+| 🟡 Amber | Warning — 2 or fewer sets remaining |
+| 🔴 Red | Empty — no sets left (shows "Restock!") |
+
+### Adjusting the count
+
+| Hotkey | Action |
+|--------|--------|
+| `Alt+1` | Decrease count by 1 |
+| `Alt+2` | Increase count by 1 |
+
+Use `Alt+2` after you've refilled your armor folder to update the counter without restarting.
+
+### Stopping QuickArmorSwap
+
+Press your **deactivation hotkey** (e.g. `#`). The program will shut down cleanly.
+
+
+## ⚙️ Configuration
+
+All settings are stored in `settings.txt` in the QuickArmorSwap folder. This file is created automatically after first-time setup. A typical file looks like this:
+
+```
+game_version=ase
+game_path=C:\Program Files (x86)\Steam\steamapps\common\ARKSurvivalEvolved
+hotkey=+
+deactivation_hotkey=#
+first_click_coordinates=320,580
+second_click_coordinates=330,670
+inventory_keybind=tab
+saved_ui_scaling=1.000000
+```
+
+### Resetting a specific setting
+
+If you want to change any setting, simply **delete the corresponding line** from `settings.txt`, save the file, and restart QuickArmorSwap. The setup wizard will ask you for that value again.
+
+For example, to change your hotkey, delete the `hotkey=...` line and restart.
+
+### When re-calibration happens automatically
+
+QuickArmorSwap saves the `UIScaling` value from your ARK settings alongside your calibrated coordinates. If you change your in-game UI scaling, the calibration wizard will automatically trigger again on the next launch so your click positions stay accurate.
 
 
 ## 🪲 Troubleshooting
 
-1. **The screen turns black and the game minimizes after pressing the hotkey**
+### The screen turns black and the game minimizes after pressing the hotkey
 
-   Your game needs to run in windowed or windowed full-screen mode. In native full-screen mode the overlay for displaying the remaining sets is not working and the screen will turn black temporarily.
+Your game is running in native fullscreen. Switch to **Windowed** or **Windowed Fullscreen** mode in ARK's display settings.
 
+### "Required ARK setting not enabled!" error on launch
 
-2. **You want to change the hotkey for the macro**
+You need to enable **"Disable Menu Transitions"** in ARK under **Options → Advanced**. See [In-Game Preparations](#2-enable-disable-menu-transitions).
 
-   Delete the line with the key `hotkey` in the `settings.txt` file, save it and restart the program in the console.
+### "GameUserSettings.ini not found" error
 
+Make sure you've launched ARK at least once so the config files are created, and that your game path in `settings.txt` points to the correct `ARKSurvivalEvolved` folder.
 
-3. **You put a value higher than 1 for your count of Armor sets, or you pressed `ALT+1` or `ALT+2` and the script is immediately crashing**
+### The macro clicks in the wrong places
 
-   You probably installed python without enabling the `Tcl/Tk and IDLE` option. Reinstall python and enable this option during the installation process.
+Re-run the calibration by deleting the lines `first_click_coordinates`, `second_click_coordinates`, and `saved_ui_scaling` from `settings.txt`, then restart QuickArmorSwap.
 
+### I want to change my hotkey
 
-*More coming soon...*
+Delete the `hotkey=...` line from `settings.txt`, save, and restart. You'll be asked to enter a new one.
+
+### I changed my inventory keybind in ARK
+
+Delete the `inventory_keybind=...` line from `settings.txt` and restart. QuickArmorSwap will re-read your keybind from ARK's `Input.ini`.
+
+### The counter shows the wrong number after restocking
+
+Use `Alt+2` to increment the count for each set you added back to the folder. Use `Alt+1` if you went one too high.
+
+### The set count drops to 0 and shows "Restock!" after pressing `Alt+1` or `Alt+2`
+
+You probably installed Python without enabling the **"Tcl/Tk and IDLE"** option. Reinstall Python and make sure this option is checked during installation.
+
+<!-- 📸 SCREENSHOT: Python installer with "tcl/tk and IDLE" checkbox highlighted -->
 
 
 ## 🔰 Version
 
-This README file is associated with QuickArmorSwap `v0.5-beta.dev3 (10.01.25)`
+This README is associated with **QuickArmorSwap v1.0-beta1 (11.03.26)**.
 
+### Upgrading to a new version
 
-### ⏫ Upgrading the Version
+1. Delete the old QuickArmorSwap folder
+2. Extract the new version
+3. Copy your old `settings.txt` into the new folder to keep your settings
 
-To upgrade QuickArmorSwap to a newer version, simply delete the folder of the old version and replace it with the folder extracted from the download of the new version.
+> If the new version introduces changes to settings format, you may need to delete `settings.txt` and go through the setup again.
 
 
 ## 💫 Contact
@@ -197,46 +353,13 @@ To upgrade QuickArmorSwap to a newer version, simply delete the folder of the ol
 - [AEYCEN](https://github.com/AEYCEN) (Discord: aeycen)
 - [2_L_8](https://github.com/2-L-8) (Discord: 2_l_8)
 
-Create an issue ticket on GitHub for bug reports and feature requests or join our [Discord server](https://discord.gg/N55gSQcVEC) for individual support.
-
-
-## 🐧 Installation and Launching on Linux
-<a name="installation-linux"></a>
-
-### 🛠️ Installation
-
-Right-click the root folder and select `Open in Terminal`.
-If you are using Ubuntu Linux, you need to install the python virtual environment library first:
-
-    sudo apt install python3-venv
-
-Then create the virtual environment with the following command:
-
-    python3 -m venv venv
-
-After executing the last command you shouldn't get a response. Now you can activate the virtual environment with the following command:
-
-    . venv/bin/activate
-
-A command line prefix saying `(venv)` should appear. If so, install all the required dependencies:
-
-    pip install -r requirements.txt
-
-### ♻️ Launching
-
-To start QuickArmorSwap, open the terminal in the QuickArmorSwap folder like described in the installation guide and execute the following commands:
-
-    . venv/Scripts/activate
-    sudo su
-    xhost +
-    python run.py
-
-> ℹ️ If you want to stop the running environment (venv) after using the application, just type `deactivate`. Additionally, you can enable the access control again with `xhost -`.
-
-After launching the application, look [how you can use it](#-usage).
+Create an issue ticket on GitHub for bug reports and feature requests, or join our [Discord server](https://discord.gg/N55gSQcVEC) for individual support.
+ git fetch origin
+  git branch -u origin/reimplementation reimplementation
+  git remote set-head origin -a
 
 ## 📜 License
 
-QuickArmorSwap is licensed under the GPLv3 licence. Please see the [license file](LICENSE) for more information.
-[tl;dr](https://www.tldrlegal.com/license/gnu-general-public-license-v3-gpl-3) you may copy, distribute and modify QuickArmorSwap as long as you track changes/dates in source files.
-Any modifications to QuickArmorSwap must also be made available under the GPL along with build & install instructions.
+QuickArmorSwap is licensed under the **GPLv3 license**. See the [LICENSE](LICENSE) file for details.
+
+[tl;dr](https://www.tldrlegal.com/license/gnu-general-public-license-v3-gpl-3) — You may copy, distribute, and modify QuickArmorSwap as long as you track changes/dates in source files. Any modifications must also be made available under the GPL along with build & install instructions.

@@ -1,5 +1,8 @@
-first_click_coordinates=400,660
-second_click_coordinates=400,710
 game_version=ase
-hotkey=ö
+game_path=D:\Programme\Epic Games\ARKSurvivalEvolved
+hotkey=+
 deactivation_hotkey=#
+first_click_coordinates=780,700
+second_click_coordinates=790,795
+inventory_keybind=tab
+saved_ui_scaling=0.710935
