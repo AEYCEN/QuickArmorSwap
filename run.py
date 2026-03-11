@@ -35,7 +35,7 @@ try:
 except ImportError:
     HAS_RICH = False
 
-APP_VERSION = "v1.0-beta1 (11.03.26)"
+APP_VERSION = "v1.0-beta2 (12.03.26)"
 SETTINGS_FILE = Path("settings.txt")
 
 console = Console() if HAS_RICH else None
@@ -80,16 +80,119 @@ class Coordinates:
 
 @dataclass
 class Settings:
-    """Holds every persisted user preference."""
+    """Holds every persisted user preference.
 
-    game_version: Optional[str] = None
-    game_path: Optional[str] = None
+    Version-dependent fields (game path, keybind, coordinates, UIScaling)
+    are stored separately per game version (_ase / _asa suffixes).
+    Property accessors route to the correct field based on the currently
+    selected ``last_selected_game_version``.
+    """
+
+    # ── Global settings ──────────────────────────────────────────────────────
+    last_selected_game_version: Optional[str] = None
     hotkey: Optional[str] = None
     deactivation_hotkey: Optional[str] = None
-    first_click: Optional[Coordinates] = None
-    second_click: Optional[Coordinates] = None
-    inventory_keybind: str = "i"
-    saved_ui_scaling: Optional[float] = None   # UIScaling at time of last calibration
+    ask_version_on_start: Optional[bool] = None
+
+    # ── Per-version settings ─────────────────────────────────────────────────
+    ase_game_path: Optional[str] = None
+    asa_game_path: Optional[str] = None
+    ase_inventory_keybind: str = ""   # runtime only — always re-read from game files
+    asa_inventory_keybind: str = ""
+    _keybind_from_file: bool = False  # True = read from Input.ini, False = fallback "i"
+    _ui_scaling_from_file: bool = False  # True = read from GameUserSettings.ini
+    _res_x: int = 0       # runtime only — game resolution
+    _res_y: int = 0
+    _resolution_from_file: bool = False  # True = from GameUserSettings.ini, False = screen max
+    first_click_ase: Optional[Coordinates] = None
+    first_click_asa: Optional[Coordinates] = None
+    second_click_ase: Optional[Coordinates] = None
+    second_click_asa: Optional[Coordinates] = None
+    ase_saved_ui_scaling: Optional[float] = None
+    asa_saved_ui_scaling: Optional[float] = None
+
+    # ── Version-aware property accessors ─────────────────────────────────────
+    # The rest of the codebase uses these — they transparently route
+    # to the _ase / _asa field matching the current game version.
+
+    @property
+    def game_version(self) -> Optional[str]:
+        return self.last_selected_game_version
+
+    @game_version.setter
+    def game_version(self, value: Optional[str]) -> None:
+        self.last_selected_game_version = value
+
+    @property
+    def game_path(self) -> Optional[str]:
+        if self.last_selected_game_version == "ase":
+            return self.ase_game_path
+        if self.last_selected_game_version == "asa":
+            return self.asa_game_path
+        return None
+
+    @game_path.setter
+    def game_path(self, value: Optional[str]) -> None:
+        if self.last_selected_game_version == "ase":
+            self.ase_game_path = value
+        elif self.last_selected_game_version == "asa":
+            self.asa_game_path = value
+
+    @property
+    def inventory_keybind(self) -> str:
+        """Returns the detected keybind, or 'i' as runtime fallback."""
+        if self.last_selected_game_version == "asa":
+            return self.asa_inventory_keybind or "i"
+        return self.ase_inventory_keybind or "i"
+
+    @inventory_keybind.setter
+    def inventory_keybind(self, value: Optional[str]) -> None:
+        """Set the keybind. None or empty = not detected."""
+        clean = value or ""
+        if self.last_selected_game_version == "asa":
+            self.asa_inventory_keybind = clean
+        else:
+            self.ase_inventory_keybind = clean
+        self._keybind_from_file = bool(clean)
+
+    @property
+    def first_click(self) -> Optional[Coordinates]:
+        if self.last_selected_game_version == "asa":
+            return self.first_click_asa
+        return self.first_click_ase
+
+    @first_click.setter
+    def first_click(self, value: Optional[Coordinates]) -> None:
+        if self.last_selected_game_version == "asa":
+            self.first_click_asa = value
+        else:
+            self.first_click_ase = value
+
+    @property
+    def second_click(self) -> Optional[Coordinates]:
+        if self.last_selected_game_version == "asa":
+            return self.second_click_asa
+        return self.second_click_ase
+
+    @second_click.setter
+    def second_click(self, value: Optional[Coordinates]) -> None:
+        if self.last_selected_game_version == "asa":
+            self.second_click_asa = value
+        else:
+            self.second_click_ase = value
+
+    @property
+    def saved_ui_scaling(self) -> Optional[float]:
+        if self.last_selected_game_version == "asa":
+            return self.asa_saved_ui_scaling
+        return self.ase_saved_ui_scaling
+
+    @saved_ui_scaling.setter
+    def saved_ui_scaling(self, value: Optional[float]) -> None:
+        if self.last_selected_game_version == "asa":
+            self.asa_saved_ui_scaling = value
+        else:
+            self.ase_saved_ui_scaling = value
 
     # ── Persistence ──────────────────────────────────────────────────────────
 
@@ -102,42 +205,60 @@ class Settings:
 
         raw = _read_key_value_file(path)
 
-        settings.game_version = raw.get("game_version")
-        settings.game_path = raw.get("game_path")
+        settings.last_selected_game_version = raw.get("last_selected_game_version")
+        settings.ase_game_path = raw.get("ase_game_path")
+        settings.asa_game_path = raw.get("asa_game_path")
         settings.hotkey = raw.get("hotkey")
         settings.deactivation_hotkey = raw.get("deactivation_hotkey")
-        settings.inventory_keybind = raw.get("inventory_keybind", "i")
 
-        if "first_click_coordinates" in raw:
-            settings.first_click = Coordinates.from_string(raw["first_click_coordinates"])
-        if "second_click_coordinates" in raw:
-            settings.second_click = Coordinates.from_string(raw["second_click_coordinates"])
-        if "saved_ui_scaling" in raw:
-            try:
-                settings.saved_ui_scaling = float(raw["saved_ui_scaling"])
-            except ValueError:
-                pass
+        for suffix in ("ase", "asa"):
+            fc_key = f"{suffix}_first_click_coords"
+            sc_key = f"{suffix}_second_click_coords"
+            ui_key = f"{suffix}_saved_ui_scaling"
+            if fc_key in raw:
+                setattr(settings, f"first_click_{suffix}", Coordinates.from_string(raw[fc_key]))
+            if sc_key in raw:
+                setattr(settings, f"second_click_{suffix}", Coordinates.from_string(raw[sc_key]))
+            if ui_key in raw:
+                try:
+                    setattr(settings, f"{suffix}_saved_ui_scaling", float(raw[ui_key]))
+                except ValueError:
+                    pass
+
+        if "ask_version_on_start" in raw:
+            settings.ask_version_on_start = raw["ask_version_on_start"].lower() == "true"
 
         return settings
 
     def save(self, path: Path = SETTINGS_FILE) -> None:
         """Write current state back to settings.txt."""
         pairs: dict[str, str] = {}
-        if self.game_version:
-            pairs["game_version"] = self.game_version
-        if self.game_path:
-            pairs["game_path"] = self.game_path
+
+        if self.last_selected_game_version:
+            pairs["last_selected_game_version"] = self.last_selected_game_version
         if self.hotkey:
             pairs["hotkey"] = self.hotkey
         if self.deactivation_hotkey:
             pairs["deactivation_hotkey"] = self.deactivation_hotkey
-        if self.first_click:
-            pairs["first_click_coordinates"] = str(self.first_click)
-        if self.second_click:
-            pairs["second_click_coordinates"] = str(self.second_click)
-        pairs["inventory_keybind"] = self.inventory_keybind
-        if self.saved_ui_scaling is not None:
-            pairs["saved_ui_scaling"] = f"{self.saved_ui_scaling:.6f}"
+        if self.ask_version_on_start is not None:
+            pairs["ask_version_on_start"] = str(self.ask_version_on_start)
+
+        # Per-version fields
+        if self.ase_game_path:
+            pairs["ase_game_path"] = self.ase_game_path
+        if self.asa_game_path:
+            pairs["asa_game_path"] = self.asa_game_path
+
+        for suffix in ("ase", "asa"):
+            fc = getattr(self, f"first_click_{suffix}")
+            sc = getattr(self, f"second_click_{suffix}")
+            ui = getattr(self, f"{suffix}_saved_ui_scaling")
+            if fc:
+                pairs[f"{suffix}_first_click_coords"] = str(fc)
+            if sc:
+                pairs[f"{suffix}_second_click_coords"] = str(sc)
+            if ui is not None:
+                pairs[f"{suffix}_saved_ui_scaling"] = f"{ui:.6f}"
 
         lines = [f"{k}={v}\n" for k, v in pairs.items()]
         path.write_text("".join(lines), encoding="utf-8")
@@ -232,12 +353,12 @@ _ARK_KEY_MAP: dict[str, str] = {
 _GAMEPAD_PREFIX = "Gamepad_"
 
 
-def read_inventory_keybind(game_path: Path, game_version: str) -> str:
+def read_inventory_keybind(game_path: Path, game_version: str) -> Optional[str]:
     """
     Read the ShowMyInventory keybind from ARK's Input.ini.
 
     Returns a key name compatible with the ``keyboard`` library,
-    or ``"i"`` as fallback if the file/entry is not found.
+    or ``None`` if the file/entry is not found.
     """
     if game_version == "ase":
         ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "WindowsNoEditor" / "Input.ini"
@@ -245,16 +366,18 @@ def read_inventory_keybind(game_path: Path, game_version: str) -> str:
         ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "Windows" / "Input.ini"
 
     if not ini_path.exists():
-        return "i"
+        return None
 
     try:
         content = _read_file_text(ini_path)
     except Exception:
-        return "i"
+        return None
 
-    # Pattern: ActionName="ShowMyInventory",Key=<KEY>,...
+    # Match Key=<KEY> anywhere within a ShowMyInventory mapping line.
+    # ASE format: ...,ActionName="ShowMyInventory",Key=Tab,bShift=False,...
+    # ASA format: ...,ActionName="ShowMyInventory",bShift=False,...,Key=I)
     pattern = re.compile(
-        r'ActionMappings=\(ActionName="ShowMyInventory",Key=(\w+)',
+        r'ActionMappings=\(ActionName="ShowMyInventory"[^)]*?,\s*Key=(\w+)',
     )
 
     for match in pattern.finditer(content):
@@ -273,7 +396,7 @@ def read_inventory_keybind(game_path: Path, game_version: str) -> str:
         if len(ark_key) == 1 and ark_key.isalpha():
             return ark_key.lower()
 
-    return "i"
+    return None
 
 
 def validate_game_path(raw_path: str, game_version: str) -> Optional[Path]:
@@ -334,8 +457,8 @@ def check_disable_menu_transitions(game_path: Path, game_version: str) -> None:
             "Required ARK setting not enabled!\n\n"
             '  "Disable Menu Transitions" must be checked (set to True).\n\n'
             "  How to fix:\n"
-            "    1. Open ARK: Survival Evolved\n"
-            '    2. Go to Options → Advanced\n'
+            "    1. Open the game\n"
+            '    2. ASE: Go to Options → Advanced / ASA: Go to Settings → General → UI\n'
             '    3. Enable "Disable Menu Transitions"\n'
             "    4. Save and restart QuickArmorSwap\n\n"
             "  This setting is required so the inventory opens instantly,\n"
@@ -347,33 +470,39 @@ def check_disable_menu_transitions(game_path: Path, game_version: str) -> None:
 #  ARK display settings & coordinate calculation
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def read_game_display_settings(game_path: Path, game_version: str) -> tuple[float, int, int]:
+def read_game_display_settings(game_path: Path, game_version: str) -> tuple[float, bool, int, int, bool]:
     """
     Read UIScaling and resolution from GameUserSettings.ini.
-    Returns (ui_scaling, resolution_x, resolution_y).
+
+    Returns ``(ui_scaling, ui_from_file, res_x, res_y, res_from_file)``.
+    Falls back to ``1.0`` for UIScaling and screen dimensions for resolution.
     """
+    screen = pyautogui.size()
+    default_res_x, default_res_y = screen.width, screen.height
+
     if game_version == "ase":
         ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "WindowsNoEditor" / "GameUserSettings.ini"
     else:
         ini_path = game_path / "ShooterGame" / "Saved" / "Config" / "Windows" / "GameUserSettings.ini"
 
     if not ini_path.exists():
-        return 1.0, 1920, 1080
+        return 1.0, False, default_res_x, default_res_y, False
 
     try:
         content = _read_file_text(ini_path)
     except Exception:
-        return 1.0, 1920, 1080
+        return 1.0, False, default_res_x, default_res_y, False
 
     ui_match = re.search(r'UIScaling\s*=\s*([\d.]+)', content)
     ui_scaling = float(ui_match.group(1)) if ui_match else 1.0
 
     rx_match = re.search(r'ResolutionSizeX\s*=\s*(\d+)', content)
     ry_match = re.search(r'ResolutionSizeY\s*=\s*(\d+)', content)
-    res_x = int(rx_match.group(1)) if rx_match else 1920
-    res_y = int(ry_match.group(1)) if ry_match else 1080
+    res_from_file = bool(rx_match and ry_match)
+    res_x = int(rx_match.group(1)) if rx_match else default_res_x
+    res_y = int(ry_match.group(1)) if ry_match else default_res_y
 
-    return ui_scaling, res_x, res_y
+    return ui_scaling, bool(ui_match), res_x, res_y, res_from_file
 
 
 # Reference resolution for the linear model
@@ -814,8 +943,7 @@ class Overlay:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def show_banner() -> None:
-    screen = pyautogui.size()
-    sys_info = f"{get_os_label()}  •  {screen.width}×{screen.height} px"
+    get_os_label()
 
     if HAS_RICH:
         title = Text("QuickArmorSwap", style="bold bright_cyan")
@@ -827,9 +955,7 @@ def show_banner() -> None:
         credit.append(" / ", style="dim")
         credit.append("2_L_8", style="bold yellow")
 
-        info = Text(sys_info, style="dim italic")
-
-        body = Text.assemble(title, "\n", version, "\n", credit, "\n\n", info, justify="center")
+        body = Text.assemble(title, "\n", version, "\n", credit, justify="center")
         panel = Panel(
             body,
             box=box.DOUBLE_EDGE,
@@ -844,26 +970,32 @@ def show_banner() -> None:
         print(f"  ║              QuickArmorSwap              ║")
         print(f"  ║             {APP_VERSION:<16}            ║")
         print(f"  ║       © 2024-2026 by AEYCEN / 2_L_8      ║")
-        print(f"  ║                                          ║")
-        print(f"  ║        {sys_info:<34}║")
         print(f"  ╚══════════════════════════════════════════╝")
         print()
 
 
+_GAME_NAMES = {
+    "ase": "Ark: Survival Evolved",
+    "asa": "Ark: Survival Ascended",
+}
+
+
 def show_status_table(settings: Settings, set_count: int) -> None:
     """Display a compact overview of all active keybinds and settings."""
-    ui_str = f"{settings.saved_ui_scaling:.4f}" if settings.saved_ui_scaling else "—"
+    ui_str = f"{settings.saved_ui_scaling:.4f}" if settings.saved_ui_scaling else "1.0000"
+    ui_source = "synced" if settings._ui_scaling_from_file else "default"
+    kb_source = "synced" if settings._keybind_from_file else "default"
+    res_str = f"{settings._res_x} × {settings._res_y} px"
+    res_source = "synced" if settings._resolution_from_file else "screen max"
+    game_name = _GAME_NAMES.get(settings.game_version, "—")
 
     if not HAS_RICH:
-        print(f"  Game path:          {settings.game_path}")
-        print(f"  UIScaling:          {ui_str}")
-        print(f"  Macro hotkey:       {settings.hotkey}")
-        print(f"  Deactivation:       {settings.deactivation_hotkey}")
-        print(f"  Inventory key:      {settings.inventory_keybind}")
-        print(f"  Armor sets:         {set_count}")
-        print(f"  1st click:          {settings.first_click}")
-        print(f"  2nd click:          {settings.second_click}")
-        print(f"  Adjust count:       Alt+1 (-)  /  Alt+2 (+)")
+        print(f"  Game:                     {game_name}")
+        print(f"  Game path:                {settings.game_path}")
+        print(f"  Resolution:               {res_str} ({res_source})")
+        print(f"  UI Scaling:               {ui_str} ({ui_source})")
+        print(f"  Open inventory keybind:   {settings.inventory_keybind} ({kb_source})")
+        print(f"  Adjust armor set count:   Alt+1 (-)  /  Alt+2 (+)")
         return
 
     table = Table(
@@ -877,18 +1009,15 @@ def show_status_table(settings: Settings, set_count: int) -> None:
 
     # Truncate long path for display
     display_path = settings.game_path or "—"
-    if len(display_path) > 50:
-        display_path = "…" + display_path[-49:]
+    if len(display_path) > 100:
+        display_path = "…" + display_path[-99:]
 
+    table.add_row("Game", f"[bright_cyan]{game_name}[/]")
     table.add_row("Game path", f"[dim]{display_path}[/]")
-    table.add_row("UIScaling", f"[dim]{ui_str}[/]")
-    table.add_row("Macro hotkey", f"[bright_magenta]{settings.hotkey}[/]")
-    table.add_row("Deactivation", f"[red]{settings.deactivation_hotkey}[/]")
-    table.add_row("Inventory key", f"[bright_cyan]{settings.inventory_keybind}[/]")
-    table.add_row("Armor sets", f"[bright_green]{set_count}[/]")
-    table.add_row("1st click coords", f"[bright_green]{settings.first_click}[/]")
-    table.add_row("2nd click coords", f"[yellow]{settings.second_click}[/]")
-    table.add_row("Adjust count", "[dim]Alt+1[/] (−)  /  [dim]Alt+2[/] (+)")
+    table.add_row("Resolution", f"[dim]{res_str}[/]  [dim italic]({res_source})[/]")
+    table.add_row("UI Scaling", f"[dim]{ui_str}[/]  [dim italic]({ui_source})[/]")
+    table.add_row("Open inventory keybind", f"[dim]{settings.inventory_keybind}[/]  [dim italic]({kb_source})[/]")
+    table.add_row("Adjust armor set count", "[dim]Alt+1[/] (−)  /  [dim]Alt+2[/] (+)")
 
     console.print()
     console.print(table)
@@ -918,12 +1047,16 @@ def show_exit_hint(deactivation_hotkey: str) -> None:
         print(f"  Press '{deactivation_hotkey}' to stop QuickArmorSwap.\n")
 
 
-def prompt_choice(label: str, choices: list[str]) -> str:
+def prompt_choice(label: str, choices: list[str], default: Optional[str] = None) -> str:
     """Let the user pick from a list. Returns the chosen value."""
+    fallback = default if default in choices else choices[0]
     if HAS_RICH:
-        return Prompt.ask(f"  {label}", choices=choices, default=choices[0])
+        return Prompt.ask(f"  {label}", choices=choices, default=fallback)
     while True:
-        raw = input(f"  {label} [{'/'.join(choices)}]: ").strip().lower()
+        hint = "/".join(c.upper() if c == fallback else c for c in choices)
+        raw = input(f"  {label} [{hint}]: ").strip().lower()
+        if raw == "":
+            return fallback
         if raw in choices:
             return raw
         print(f"  Invalid — choose one of: {', '.join(choices)}")
@@ -948,6 +1081,23 @@ def prompt_int(label: str, *, minimum: int = 1) -> int:
         if raw.isdigit() and int(raw) >= minimum:
             return int(raw)
         print(f"  Invalid — enter a whole number ≥ {minimum}.")
+
+
+def prompt_yes_no(label: str, default: bool = True) -> bool:
+    """Ask a yes/no question. Returns True for yes, False for no."""
+    hint = "Y/n" if default else "y/N"
+    if HAS_RICH:
+        raw = Prompt.ask(f"  {label}", choices=["y", "n"], default="y" if default else "n")
+        return raw.lower() == "y"
+    while True:
+        raw = input(f"  {label} [{hint}]: ").strip().lower()
+        if raw == "":
+            return default
+        if raw in ("y", "yes"):
+            return True
+        if raw in ("n", "no"):
+            return False
+        print("  Invalid — enter y or n.")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1012,19 +1162,16 @@ class MacroState:
 
 def run_setup(settings: Settings) -> Settings:
     """Walk the user through missing settings. Returns the updated object."""
-    needs_setup = (
-        not settings.game_version
-        or not settings.game_path
-        or not settings.hotkey
-        or not settings.deactivation_hotkey
-    )
+    is_first_run = settings.last_selected_game_version is None
 
-    if needs_setup:
+    # ── Game version selection ───────────────────────────────────────────────
+
+    if is_first_run:
         if HAS_RICH:
             console.print()
             console.print(
                 Panel(
-                    "[bold]First-time setup[/]\nAnswer a few questions to get started.",
+                    "[bold]First-time setup[/]\nAnswer a few questions to get started",
                     border_style="bright_cyan",
                     box=box.ROUNDED,
                     padding=(1, 3),
@@ -1034,20 +1181,38 @@ def run_setup(settings: Settings) -> Settings:
         else:
             print("\n  ── First-time setup ──\n")
 
-    # Game version
-    if not settings.game_version:
-        version = prompt_choice(
-            "ARK version",
-            choices=["ase", "asa"],
-        )
-        if version == "asa":
-            msg = "ASA support is still in development. Defaulting to ASE for now."
-            if HAS_RICH:
-                console.print(f"  [yellow]{msg}[/]")
-            else:
-                print(f"  {msg}")
-            version = "ase"
+        version = prompt_choice("ARK version", choices=["ase", "asa"])
         settings.game_version = version
+
+        ask_every_time = prompt_yes_no("Ask for game version on every start?", default=True)
+        settings.ask_version_on_start = ask_every_time
+
+    elif settings.ask_version_on_start:
+        previous = settings.last_selected_game_version or "asa"
+        version = prompt_choice("ARK version", choices=["ase", "asa"], default=previous)
+        settings.game_version = version
+
+    # ── Remaining setup (game path, hotkeys, calibration) ────────────────────
+    needs_setup = (
+        not settings.game_path
+        or not settings.hotkey
+        or not settings.deactivation_hotkey
+    )
+
+    if needs_setup and not is_first_run:
+        if HAS_RICH:
+            console.print()
+            console.print(
+                Panel(
+                    "[bold]Setup[/]\nSome settings are missing — let's fill them in.",
+                    border_style="bright_cyan",
+                    box=box.ROUNDED,
+                    padding=(1, 3),
+                ),
+                justify="center",
+            )
+        else:
+            print("\n  ── Setup ──\n")
 
     # Game path
     if not settings.game_path:
@@ -1076,24 +1241,24 @@ def run_setup(settings: Settings) -> Settings:
 
         # Auto-detect inventory keybind from Input.ini
         detected_key = read_inventory_keybind(Path(settings.game_path), settings.game_version)
-        settings.inventory_keybind = detected_key
+        settings.inventory_keybind = detected_key  # None → empty → property returns "i"
 
+        display_key = detected_key or "i"
         if HAS_RICH:
-            if detected_key == "i":
-                console.print(f'  [dim]Inventory keybind:[/] [bright_cyan]{detected_key}[/] [dim](default — no custom binding found)[/]')
+            if detected_key:
+                console.print(f'  [dim]Inventory keybind:[/] [bright_cyan]{display_key}[/] [green]✓ from Input.ini[/]')
             else:
-                console.print(f'  [dim]Inventory keybind:[/] [bright_cyan]{detected_key}[/] [green]✓ detected from Input.ini[/]')
+                console.print(f'  [dim]Inventory keybind:[/] [bright_cyan]{display_key}[/] [dim](default — not found in Input.ini)[/]')
         else:
-            if detected_key == "i":
-                print(f'  Inventory keybind: {detected_key} (default — no custom binding found)')
+            if detected_key:
+                print(f'  Inventory keybind: {display_key} (from Input.ini)')
             else:
-                print(f'  Inventory keybind: {detected_key} (detected from Input.ini)')
+                print(f'  Inventory keybind: {display_key} (default — not found in Input.ini)')
 
-    # If path exists but keybind was never read (e.g. old settings file), re-detect
-    elif settings.inventory_keybind == "i" and settings.game_path:
+    # Path already set — still always re-read keybind from game files
+    elif settings.game_path:
         detected_key = read_inventory_keybind(Path(settings.game_path), settings.game_version)
-        if detected_key != "i":
-            settings.inventory_keybind = detected_key
+        settings.inventory_keybind = detected_key
 
     # Verify "Disable Menu Transitions" is enabled in ARK settings
     if settings.game_path:
@@ -1109,9 +1274,13 @@ def run_setup(settings: Settings) -> Settings:
 
     # ── Coordinate calibration ───────────────────────────────────────────────
     if settings.game_path:
-        ui_scaling, res_x, res_y = read_game_display_settings(
+        ui_scaling, ui_from_file, res_x, res_y, res_from_file = read_game_display_settings(
             Path(settings.game_path), settings.game_version,
         )
+        settings._ui_scaling_from_file = ui_from_file
+        settings._res_x = res_x
+        settings._res_y = res_y
+        settings._resolution_from_file = res_from_file
 
         if settings.needs_calibration(ui_scaling):
             # Explain why
@@ -1201,13 +1370,6 @@ def main() -> None:
         SETTINGS_FILE.touch()
 
     settings = Settings.load()
-
-    # ASA guard
-    if settings.game_version == "asa":
-        raise QuickArmorSwapError(
-            "ASA support is still in development. "
-            "Change game_version to 'ase' in settings.txt."
-        )
 
     # Interactive setup for anything missing
     settings = run_setup(settings)
