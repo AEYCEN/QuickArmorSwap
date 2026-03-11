@@ -2,7 +2,7 @@
 QuickArmorSwap — ARK: Survival Evolved Macro Tool
 Quickly swap armor sets in-game with a single hotkey press.
 
-© 2024 by AEYCEN / 2_L_8
+© 2024-2026 by AEYCEN / 2_L_8
 """
 
 from __future__ import annotations
@@ -24,8 +24,6 @@ import keyboard
 import pyautogui
 
 # ─── Rich Console Setup ────────────────────────────────────────────────────────
-# `rich` liefert schöne Farben, Panels, Tabellen und Prompts im Terminal.
-# Falls nicht installiert: pip install rich
 try:
     from rich.console import Console
     from rich.panel import Panel
