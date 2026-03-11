@@ -11,7 +11,7 @@
     <br>
     <b style="font-size: 16px">© 2024-2026 by AEYCEN / 2_L_8</b>
     <br>
-    Exploit the full potential and take the advantage.
+    Exploit the full potential and take the advantage
     <br>
 </p>
 

@@ -1,6 +1,0 @@
-last_selected_game_version=asa
-ask_version_on_start=False
-asa_game_path=D:\Programme\Steam\steamapps\common\ARK Survival Ascended
-asa_first_click_coords=213,580
-asa_second_click_coords=220,790
-asa_saved_ui_scaling=1.000000
