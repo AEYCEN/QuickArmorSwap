@@ -1,2 +1,5 @@
 first_click_coordinates=400,660
 second_click_coordinates=400,710
+game_version=ase
+hotkey=ö
+deactivation_hotkey=#
