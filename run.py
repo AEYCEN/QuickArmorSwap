@@ -1272,6 +1272,11 @@ def run_setup(settings: Settings) -> Settings:
     if not settings.deactivation_hotkey:
         settings.deactivation_hotkey = prompt_text("Stop hotkey (e.g. '#' or 'esc')", default="#")
 
+    # ── Persist settings collected so far ────────────────────────────────────
+    # Save now so that game_path, last_selected_game_version, and hotkeys
+    # are kept even if the calibration step below is cancelled.
+    settings.save()
+
     # ── Coordinate calibration ───────────────────────────────────────────────
     if settings.game_path:
         ui_scaling, ui_from_file, res_x, res_y, res_from_file = read_game_display_settings(
