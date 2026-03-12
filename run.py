@@ -688,6 +688,15 @@ def run_calibration(
         root.after(30, _poll)
         root.mainloop()
 
+        # ── Tear down Tcl state on THIS thread ──────────────────────────
+        # Without this, Python's GC would free the Tcl interpreter from
+        # the main thread later → "Tcl_AsyncDelete: wrong thread".
+        try:
+            root.tk.call("destroy", ".")
+        except Exception:
+            pass
+        root_ref.clear()  # drop the reference so GC has nothing to finalize
+
     overlay_thread = threading.Thread(target=_overlay_thread, daemon=True)
     overlay_thread.start()
 
