@@ -48,9 +48,9 @@ Otherwise press `CTRL+C` at any point inside the terminal to force interrupt the
 
 ## ⏭️ Next steps
 
-- **Continue: [⚙️ Configuration](configuration.md)**
+**Continue with [⚙️ Configuration](configuration.md)**
 
 
-- *Back*:
+*Or go back to*:
   - [✨ First-Time Setup](first-time-setup.md)
   - [Startpage](https://github.com/AEYCEN/QuickArmorSwap)

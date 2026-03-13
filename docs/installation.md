@@ -44,11 +44,11 @@ Wait for the installation to complete. You're ready to go.
 
 ## ⏭️ Next steps
 
-- **Continue:** 
-  - [🦖 **Ark: Survival Ascended** In-Game Preparations](in-game-preperations-ASA.md)
-  - [🦖 **Ark: Survival Evolved** In-Game Preparations](in-game-preperations-ASE.md)
+**Continue with** 
+- [🦖 **Ark: Survival Ascended** In-Game Preparations](in-game-preperations-ASA.md)
+- [🦖 **Ark: Survival Evolved** In-Game Preparations](in-game-preperations-ASE.md)
 
 
-- *Back:*
+*Or go back to*:
   - [📋 Requirements](requirements.md)
   - [Startpage](https://github.com/AEYCEN/QuickArmorSwap)

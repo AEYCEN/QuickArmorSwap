@@ -40,7 +40,7 @@ Use `Alt+2` to increment the count for each set you added back to the folder. Us
 
 You probably installed Python without enabling the **"Tcl/Tk, turtle and IDLE"** option. Reinstall Python and make sure this option is checked during installation.
 
-<img src="../img/screenshot/python-installer-options.png" style="width: 60%" alt="SCREENSHOT: Python installer with 'tcl/tk, turtle and IDLE' checkbox highlighted">
+Check the [📋 Requirements](requirements.md)
 
 ## The installation fails due to restricting Windows policies
 
@@ -60,9 +60,8 @@ You may activate in the Windows-Settings under `Developer settings` the checkbox
 
 ## ⏭️ Next steps
 
-- **Continue: [Back to Startpage](https://github.com/AEYCEN/QuickArmorSwap)**
+**Continue with [going back to Startpage](https://github.com/AEYCEN/QuickArmorSwap)**
 
 
-- *Back*:
+*Or go back to*:
   - [⚙️ Configuration](configuration.md)
-  - [Startpage](https://github.com/AEYCEN/QuickArmorSwap)

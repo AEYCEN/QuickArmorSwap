@@ -39,9 +39,9 @@ QuickArmorSwap saves the `UIScaling` value alongside the calibrated coordinates 
 
 ## ⏭️ Next steps
 
-- **Continue: [❔ Troubleshooting](troubleshooting.md)**
+**Continue with [❔ Troubleshooting](troubleshooting.md)**
 
 
-- *Back*:
+*Or go back to*:
   - [🎮 Using QuickArmorSwap In-Game](usage.md)
   - [Startpage](https://github.com/AEYCEN/QuickArmorSwap)

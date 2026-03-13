@@ -37,9 +37,10 @@ Move one or more **complete** armor sets (helmet, chest, gloves, legs, boots) of
 
 ## ⏭️ Next steps
 
-- **Continue: [🚀 Launching QuickArmorSwap](launching.md)**
+**Continue with [🚀 Launching QuickArmorSwap](launching.md)**
 
 
-- *Back*:
+*Or go back to*:
   - [🛠️ Installation](installation.md)
+  - [🦖 Ark: Survival Ascended In-Game Preparations](in-game-preperations-ASA.md)
   - [Startpage](https://github.com/AEYCEN/QuickArmorSwap)

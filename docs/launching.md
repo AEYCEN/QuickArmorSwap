@@ -18,10 +18,10 @@ You can interrupt the application at any point with pressing `CTRL+C` inside the
 
 ## ⏭️ Next steps
 
-- **Continue: [✨ First-Time Setup](first-time-setup.md)**
+**Continue with [✨ First-Time Setup](first-time-setup.md)**
 
 
-- *Back*:
+*Or go back to*:
   - [🦖 *Ark: Survival Ascended* In-Game Preparations](in-game-preperations-ASA.md)
   - [🦖 *Ark: Survival Evolved* In-Game Preparations](in-game-preperations-ASE.md)
   - [Startpage](https://github.com/AEYCEN/QuickArmorSwap)

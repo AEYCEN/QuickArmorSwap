@@ -118,9 +118,9 @@ After this, QuickArmorSwap is fully configured and running:
 
 ## ⏭️ Next steps
 
-- **Continue: [🎮 Using QuickArmorSwap In-Game](usage.md)**
+**Continue with [🎮 Using QuickArmorSwap In-Game](usage.md)**
 
 
-- *Back*:
+*Or go back to*:
   - [🚀 Launching QuickArmorSwap](launching.md)
   - [Startpage](https://github.com/AEYCEN/QuickArmorSwap)
