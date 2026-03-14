@@ -1,6 +1,6 @@
 # 🎮 Using QuickArmorSwap In-Game
 
-Once you see <span style="color: lime">**● RUNNING**</span> in the terminal, the macro is active. Switch to ARK and play.
+Once you see <span style="color: #85FF00">**● RUNNING**</span> in the terminal, the macro is active. Switch to ARK and play.
 
 ## Swapping armor
 

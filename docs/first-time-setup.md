@@ -4,6 +4,8 @@ When you launch QuickArmorSwap for the first time, a guided setup wizard walks y
 
 <img src="../img/screenshot/qas-greeting.png" style="width: 100%" alt="SCREENSHOT: Terminal showing the QuickArmorSwap banner and first-time setup panel">
 
+> ℹ️ Even if you don't see a colour output in the terminal, QuickArmorSwap works without any problems. This indicates a minor error with the installation.
+
 ### 1. ARK version
 
 You'll be asked which ARK version you're using:

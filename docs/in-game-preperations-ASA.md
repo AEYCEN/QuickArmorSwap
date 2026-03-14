@@ -27,7 +27,7 @@ This is **required**. Without it, the inventory animation delay will cause the m
 2. Create a new folder (the name doesn't matter, but "Armor" is recommended)
 3. It is recommended to enable **folder view** in the inventory — the toggle button is in the upper-right corner of the inventory, next to the "Toggle tooltip" button
 
-<img src="../img/asa-inventory-folder.png" style="width: 100%" alt="SCREENSHOT: ARK inventory with folder view enabled and an 'Armor' folder visible">
+<img src="../img/screenshot/asa-inventory-folder.png" style="width: 100%" alt="SCREENSHOT: ARK inventory with folder view enabled and an 'Armor' folder visible">
 
 ## 4. Fill the folder with armor sets
 
