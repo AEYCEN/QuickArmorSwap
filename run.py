@@ -35,7 +35,7 @@ try:
 except ImportError:
     HAS_RICH = False
 
-APP_VERSION = "v1.0 (15.03.26)"
+APP_VERSION = "v1.0 (16.03.26)"
 SETTINGS_FILE = Path("settings.txt")
 
 console = Console() if HAS_RICH else None
