@@ -27,7 +27,7 @@
 
 * ⚡ **Instant armor swap in ~0.5 seconds** — Press your configured hotkey and QuickArmorSwap will open your inventory, right-click the armor folder, and equip a fresh set — all within half a second
 * 🦖 **Supports both ASA and ASE** — Switch between Ark: Survival Ascended and Ark: Survival Evolved at any time. Game paths, calibration, and keybinds are stored separately per version
-* 🔍 **Automatic game settings sync** — Reads your ARK config files to detect your inventory keybind, UI scaling, and resolution. Changes to your in-game settings are picked up automatically
+* 🔍 **Automatic game settings sync** — Reads your Ark config files to detect your inventory keybind, UI scaling, and resolution. Changes to your in-game settings are picked up automatically
 * 🎯 **Guided coordinate calibration** — An interactive overlay lets you position two crosshair markers directly on the correct inventory slots — no manual pixel guessing
 * ⌨️ **Fully customizable hotkeys** — Choose any key or key combination for both the macro trigger and the deactivation key
 * 🔢 **On-screen armor set counter** — A color-coded HUD overlay shows how many sets remain to change

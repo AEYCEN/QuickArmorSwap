@@ -1,5 +1,5 @@
 """
-QuickArmorSwap — ARK: Survival Evolved Macro Tool
+QuickArmorSwap — Ark: Survival Ascended and Ark: Survival Evolved Macro Tool
 Quickly swap armor sets in-game with a single hotkey press.
 
 © 2024-2026 by AEYCEN / 2_L_8
@@ -35,7 +35,7 @@ try:
 except ImportError:
     HAS_RICH = False
 
-APP_VERSION = "v1.0-beta3 (12.03.26)"
+APP_VERSION = "v1.0 (15.03.26)"
 SETTINGS_FILE = Path("settings.txt")
 
 console = Console() if HAS_RICH else None
@@ -312,7 +312,7 @@ def _read_key_value_file(path: Path) -> dict[str, str]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  ARK Input.ini — inventory keybind detection
+#  Ark Input.ini — inventory keybind detection
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Maps Unreal Engine key names → keyboard-library key names.
@@ -355,7 +355,7 @@ _GAMEPAD_PREFIX = "Gamepad_"
 
 def read_inventory_keybind(game_path: Path, game_version: str) -> Optional[str]:
     """
-    Read the ShowMyInventory keybind from ARK's Input.ini.
+    Read the ShowMyInventory keybind from Ark's Input.ini.
 
     Returns a key name compatible with the ``keyboard`` library,
     or ``None`` if the file/entry is not found.
@@ -401,7 +401,7 @@ def read_inventory_keybind(game_path: Path, game_version: str) -> Optional[str]:
 
 def validate_game_path(raw_path: str, game_version: str) -> Optional[Path]:
     """
-    Check that the given path is a valid ARK game folder.
+    Check that the given path is a valid Ark game folder.
     Returns the resolved Path or None if invalid.
     """
     p = Path(raw_path.strip().strip('"').strip("'"))
@@ -441,7 +441,7 @@ def check_disable_menu_transitions(game_path: Path, game_version: str) -> None:
         raise SettingsError(
             f"GameUserSettings.ini not found at:\n"
             f"  {ini_path}\n\n"
-            f"Make sure ARK has been launched at least once so the config files are created."
+            f"Make sure Ark has been launched at least once so the config files are created."
         )
 
     try:
@@ -454,7 +454,7 @@ def check_disable_menu_transitions(game_path: Path, game_version: str) -> None:
 
     if not match or match.group(1).lower() != "true":
         raise SettingsError(
-            "Required ARK setting not enabled!\n\n"
+            "Required Ark setting not enabled!\n\n"
             '  "Disable Menu Transitions" must be checked (set to True).\n\n'
             "  How to fix:\n"
             "    1. Open the game\n"
@@ -467,7 +467,7 @@ def check_disable_menu_transitions(game_path: Path, game_version: str) -> None:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  ARK display settings & coordinate calculation
+#  Ark display settings & coordinate calculation
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def read_game_display_settings(game_path: Path, game_version: str) -> tuple[float, bool, int, int, bool]:
@@ -1190,7 +1190,7 @@ def run_setup(settings: Settings) -> Settings:
         else:
             print("\n  ── First-time setup ──\n")
 
-        version = prompt_choice("ARK version", choices=["ase", "asa"])
+        version = prompt_choice("Ark version", choices=["ase", "asa"])
         settings.game_version = version
 
         ask_every_time = prompt_yes_no("Ask for game version on every start?", default=True)
@@ -1198,7 +1198,7 @@ def run_setup(settings: Settings) -> Settings:
 
     elif settings.ask_version_on_start:
         previous = settings.last_selected_game_version or "asa"
-        version = prompt_choice("ARK version", choices=["ase", "asa"], default=previous)
+        version = prompt_choice("Ark version", choices=["ase", "asa"], default=previous)
         settings.game_version = version
 
     # ── Remaining setup (game path, hotkeys, calibration) ────────────────────
@@ -1269,7 +1269,7 @@ def run_setup(settings: Settings) -> Settings:
         detected_key = read_inventory_keybind(Path(settings.game_path), settings.game_version)
         settings.inventory_keybind = detected_key
 
-    # Verify "Disable Menu Transitions" is enabled in ARK settings
+    # Verify "Disable Menu Transitions" is enabled in Ark settings
     if settings.game_path:
         check_disable_menu_transitions(Path(settings.game_path), settings.game_version)
 
@@ -1315,7 +1315,7 @@ def run_setup(settings: Settings) -> Settings:
                         f"  Detected:  [dim]Resolution[/] [bold]{res_x}×{res_y}[/]  "
                         f"│  [dim]UIScaling[/] [bold]{ui_scaling:.4f}[/]\n\n"
                         f"  An overlay with two crosshair markers will appear.\n"
-                        f"  Open ARK with your [bold]inventory visible[/], then position each marker:\n\n"
+                        f"  Open Ark with your [bold]inventory visible[/], then position each marker:\n\n"
                         f"    [bright_green]GREEN[/]  marker → Inventory folder (right-click target)\n"
                         f"    [yellow]ORANGE[/] marker → Context menu entry 'equip all items'\n\n"
                         f"  Controls:\n"
@@ -1333,7 +1333,7 @@ def run_setup(settings: Settings) -> Settings:
             else:
                 print(f"\n  ⚠  Calibration needed: {reason}")
                 print(f"     Resolution: {res_x}×{res_y}  |  UIScaling: {ui_scaling:.4f}")
-                print("     Open ARK with inventory visible, then position the markers.")
+                print("     Open Ark with inventory visible, then position the markers.")
                 print("     Arrow keys = 1px, Shift+Arrows = 10px, Enter = confirm, Esc = cancel")
                 print("\n  Press Enter to start calibration (works in-game too)…")
 
@@ -1440,8 +1440,4 @@ if __name__ == "__main__":
         else:
             print("\n  Interrupted. Bye!\n")
 
-    # os._exit() skips Python's finalization which triggers
-    # "Tcl_AsyncDelete: async handler deleted by the wrong thread"
-    # on some Python/Tcl combinations. All our cleanup (Overlay.shutdown,
-    # settings.save, keyboard.unhook) is already done at this point.
     os._exit(_exit_code)

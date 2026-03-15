@@ -2,17 +2,17 @@
 
 ## The screen turns black and the game minimizes after pressing the hotkey
 
-Your game is running in native fullscreen. Switch to **Windowed** or **Windowed Fullscreen** mode in ARK's display settings.
+Your game is running in native fullscreen. Switch to **Windowed** or **Windowed Fullscreen** mode in Ark's display settings.
 
-## "Required ARK setting not enabled!" error on launch
+## "Required Ark setting not enabled!" error on launch
 
-You need to enable **"Disable Menu Transitions"** in ARK:
+You need to enable **"Disable Menu Transitions"** in Ark:
 - **ASE:** Options → Advanced
 - **ASA:** Settings → General → UI
 
 ## "GameUserSettings.ini not found" error
 
-Make sure you've launched ARK at least once so the config files are created, and that the game path in `settings.txt` points to the correct folder.
+Make sure you've launched Ark at least once so the config files are created, and that the game path in `settings.txt` points to the correct folder.
 
 ## The macro clicks in the wrong places
 
@@ -28,7 +28,7 @@ Then restart QuickArmorSwap.
 
 Delete the `hotkey=...` line from `settings.txt`, save, and restart. You'll be asked to enter a new one.
 
-## The inventory keybind shows "(default)" but I have a custom keybind in ARK
+## The inventory keybind shows "(default)" but I have a custom keybind in Ark
 
 QuickArmorSwap reads the keybind from `Input.ini` in your game's config folder on every launch. If it shows "(default)", the file either doesn't exist or doesn't contain a `ShowMyInventory` entry. Make sure you've customized the keybind _inside ARK_ (not just in an external config editor) and that the game has been launched at least once since.
 

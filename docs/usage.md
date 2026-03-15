@@ -1,6 +1,6 @@
 # 🎮 Using QuickArmorSwap In-Game
 
-Once you see <span style="color: #85FF00">**● RUNNING**</span> in the terminal, the macro is active. Switch to ARK and play.
+Once you see <span style="color: #85FF00">**● RUNNING**</span> in the terminal, the macro is active. Switch to Ark and play.
 
 ## Swapping armor
 
@@ -19,7 +19,7 @@ All of this happens within roughly 0.5 seconds. A HUD overlay at the top of the 
 <img src="../img/screenshot/ase-armor-counter.png" style="width: 100%" alt="SCREENSHOT: In-game HUD overlay showing '4 sets left' in cyan">
 
 
-> **⚠️ Important:** Do not move your mouse while the macro is running. The process is very fast, but any strong mouse movement during the ~0.5 seconds will cause misclicks.
+> **⚠️ Note:** It is recommended that you do not make any further keyboard or mouse inputs whilst the macro is running, to ensure it works properly. It is therefore recommended that you run the macro mid-fight during a jump, when you are unable to move your character anyway.
 
 ## Armor set counter
 

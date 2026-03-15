@@ -6,9 +6,9 @@ When you launch QuickArmorSwap for the first time, a guided setup wizard walks y
 
 > ℹ️ Even if you don't see a colour output in the terminal, QuickArmorSwap works without any problems. This indicates a minor error with the installation.
 
-### 1. ARK version
+### 1. Ark version
 
-You'll be asked which ARK version you're using:
+You'll be asked which Ark version you're using:
 
 | Input | Game |
 |-------|------|
@@ -55,7 +55,7 @@ Each version's path is only asked once. If you later switch to the other version
 > - **ASE:** `<game folder>\ShooterGame\Saved\Config\WindowsNoEditor\`
 > - **ASA:** `<game folder>\ShooterGame\Saved\Config\Windows\`
 >
-> These values are **never saved** to `settings.txt` — they are re-read from the game files every time. If you change your inventory keybind or UI scaling in ARK, QuickArmorSwap picks it up automatically on the next launch.
+> These values are **never saved** to `settings.txt` — they are re-read from the game files every time. If you change your inventory keybind or UI scaling in Ark, QuickArmorSwap picks it up automatically on the next launch.
 
 ### 3. Macro hotkey
 
@@ -68,11 +68,11 @@ Enter the key or key combination you want to use to trigger the armor swap. Exam
 | `alt+l` | Hold Alt and press L |
 | `ctrl+shift+l` | Hold Ctrl+Shift and press L |
 
-Choose a key that doesn't conflict with any ARK keybinds.
+Choose a key that doesn't conflict with any Ark keybinds.
 
 ### 4. Deactivation hotkey
 
-Enter the key you want to use to stop QuickArmorSwap. For example `#` or `esc`. This key works globally — even while ARK has focus.
+Enter the key you want to use to stop QuickArmorSwap. For example `#` or `esc`. This key works globally — even while Ark has focus.
 
 ### 5. Coordinate calibration
 
@@ -87,7 +87,7 @@ An overlay with **two crosshair markers** will appear on top of your screen:
 
 <img src="../img/screenshot/ase-calibration-overlay.png" style="width: 100%" alt="SCREENSHOT: Calibration overlay showing both crosshair markers positioned on the inventory">
 
-**Controls during calibration** (these work globally — even when ARK has focus):
+**Controls during calibration** (these work globally — even when Ark has focus):
 
 | Key | Action |
 |-----|--------|
@@ -98,9 +98,9 @@ An overlay with **two crosshair markers** will appear on top of your screen:
 
 **How to calibrate:**
 
-1. When asked "Press Enter to start calibration", open ARK and go into a session
+1. When asked "Press Enter to start calibration", open Ark and go into a session
 2. Open your inventory so the armor folder is visible
-3. Press **Enter** (works even while ARK has focus)
+3. Press **Enter** (works even while Ark has focus)
 4. Position the **green marker** directly on your armor folder and press **Enter**
 5. Right-click the folder so the dropdown menu appears
 6. Position the **orange marker** on the "Equip Items" option and press **Enter**
