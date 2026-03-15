@@ -2,7 +2,7 @@
 
 ## Step 1 — Download and extract
 
-1. Download the latest `QuickArmorSwap-X.X (zip)` file from the [GitHub releases page](https://github.com/AEYCEN/QuickArmorSwap/releases).
+1. Download the latest `QuickArmorSwap-vX.X (zip)` file from the [GitHub releases page](https://github.com/AEYCEN/QuickArmorSwap/releases).
 2. Extract it and copy the folder to a location of your choice (e.g. your Desktop).
 
 ## Step 2 — Open a Command Prompt in the folder
