@@ -8,8 +8,9 @@ body:
       value: |
         # QuickArmorSwap Feature Request
         
-        Please check [here](https://github.com/AEYCEN/QuickArmorSwap/labels/bug) whether there are already tickets for this feature request before creating a new one
+        Please check [here](https://github.com/AEYCEN/QuickArmorSwap/labels/feature) whether there are already tickets for this feature request before creating a new one
         All points without the `(optional)` note are mandatory fields
+
   - type: textarea
     attributes:
       label: Feature description
@@ -20,6 +21,7 @@ body:
         - Add images, videos, links, examples, references, etc. where possible
     validations:
       required: true
+
   - type: textarea
     attributes:
       label: Solution approach (optional)

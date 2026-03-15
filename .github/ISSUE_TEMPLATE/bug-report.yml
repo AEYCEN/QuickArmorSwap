@@ -1,15 +1,29 @@
 name: 🐞 Bug report
-description: Report a bug or problem.
+description: Report a bug or problem
 title: 'bug: '
 labels: [ 'bug' ]
 body:
   - type: markdown
     attributes:
       value: |
-        # QuickArmorChange Bug Report
+        # QuickArmorSwap Bug Report
         
         Please check [here](https://github.com/AEYCEN/QuickArmorSwap/labels/bug) whether there are already tickets for this bug before creating a new one
         All points without the `(optional)` note are mandatory fields
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      description: On which operating system are you using the macro?
+      multiple: false
+      options:
+        - Windows 11
+        - Windows 10
+        - Linux
+    validations:
+      required: true
+
   - type: dropdown
     id: resolution
     attributes:
@@ -23,6 +37,19 @@ body:
         - 4K UHD (2160p)
     validations:
       required: true
+
+  - type: dropdown
+    id: gameVersion
+    attributes:
+      label: Game
+      description: In which game did errors occur with the macro?
+      multiple: true
+      options:
+        - "Ark: Survival Evolved"
+        - "Ark: Survival Ascended"
+    validations:
+      required: true
+
   - type: textarea
     attributes:
       label: Error Description
@@ -32,15 +59,18 @@ body:
         - Add images and videos where possible
     validations:
       required: true
+
   - type: textarea
     attributes:
       label: Error logs (optional)
       description: Add error messages from the shell
       render: shell
+
   - type: textarea
     attributes:
       label: Suggested solution (optional)
       description: If possible, add a possible solution to the error
+
   - type: textarea
     attributes:
       label: Additional context (optional)

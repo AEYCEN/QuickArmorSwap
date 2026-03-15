@@ -3,5 +3,4 @@
 
 keyboard
 pyautogui
-colorama
-configparser
+rich

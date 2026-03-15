@@ -1,2 +1,0 @@
-first_click_coordinates=400,660
-second_click_coordinates=400,710
