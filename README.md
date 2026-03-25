@@ -34,6 +34,8 @@
 * 📐 **UIScaling change detection** — If you change your in-game UI scaling, the calibration wizard automatically re-triggers on next launch
 * 🪶 **Lightweight** — Single Python script, minimal dependencies, almost no storage footprint
 
+> Disclaimer: This macro is intended solely for singleplayer and privately hosted games. Use at your own risk regarding in-game penalties.
+
 
 ## 📖 Guide
 
@@ -59,7 +61,9 @@ Get started with **[📋 Requirements](docs/requirements.md)**
 - [AEYCEN](https://github.com/AEYCEN) (Discord: aeycen)
 - [2_L_8](https://github.com/2-L-8) (Discord: 2_l_8)
 
-Create an issue ticket on GitHub for bug reports and feature requests, or join our [Discord server](https://discord.gg/N55gSQcVEC) for individual support.
+For bug reports and feature requests please [create an issue ticket on GitHub](https://github.com/AEYCEN/QuickArmorSwap/issues).
+
+For individual support join our [Discord server](https://discord.gg/N55gSQcVEC) and ask your question with a "QuickArmorSwap"-tagged post in the Tech-Support channel.
 
 > ⭐ If you like this project, support us by giving it a Star on [GitHub](https://github.com/AEYCEN/QuickArmorSwap) :)
 
