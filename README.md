@@ -19,7 +19,8 @@
 
 <p style="font-size: 17px">Instant player armor swap macro for Ark: Survival Ascended (ASA) and Ark: Survival Evolved (ASE)</p>
 
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/ReVanced/revanced-patches/release.yml)
+![GitHub Release](https://img.shields.io/github/v/release/AEYCEN/QuickArmorSwap)
+![GitHub branch check runs](https://img.shields.io/github/check-runs/AEYCEN/QuickArmorSwap/main)
 ![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)
 
 
